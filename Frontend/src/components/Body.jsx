@@ -7,12 +7,19 @@ import {
 
 import Layout from "./Layout.jsx";
 import Login from "./Login.jsx";
+import Profile from "./Profile.jsx";
+import Feed from "./Feed.jsx";
+import Home from "./Home.jsx";
+import Error from "./Error.jsx";
 
 const Body = () => {
   const appRouter = createBrowserRouter(
     createRoutesFromElements(
-      <Route path="/" element={<Layout />}>
-        <Route path="/login" element={<Login/>} />
+      <Route path="/" element={<Layout />} errorElement={<Error />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/feed" element={<Feed />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/profile" element={<Profile />} />
       </Route>
     )
   );

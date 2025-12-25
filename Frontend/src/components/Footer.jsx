@@ -5,7 +5,7 @@ const Footer = () => {
     <footer className="footer sm:footer-horizontal bg-success-content text-neutral-content py-4 px-8 fixed bottom-0 flex justify-between items-center">
       <aside>
         <Link to="/">
-          <img src="../../public/SS-logo.png" className="h-12 m-0 p-0" />
+          <img src="/SS-logo.png" className="h-12 m-0 p-0" />
           <p className="text-2xl m-0 font-bold">SynapseSync</p>
           Connecting People
         </Link>
