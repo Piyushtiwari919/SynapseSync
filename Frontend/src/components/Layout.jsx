@@ -21,7 +21,7 @@ const Layout = () => {
       console.log(res);
     } catch (error) {
       if (error.status === 401) {
-        navigate("/");
+        // navigate("/");
       }
       console.error(error);
     }
