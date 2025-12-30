@@ -26,15 +26,15 @@ const userSchema = new Schema(
     },
     profileImageUrl: {
       type: String,
-      default: "https://cdn-icons-png.flaticon.com/512/149/149071.png",
+      default: "https://placehold.co/150?text=User",
       validate: (value) => {
         if (!validator.isURL(value)) {
-          throw new Error(`Please Enter a valid Photo URL: ${value}`);
+          throw new Error(`Please Enter a valid Image URL: ${value}`);
         }
       }
     },
     age:{
-        type:String,
+        type:Number,
         trim:true
     },
     gender:{
@@ -60,6 +60,11 @@ const userSchema = new Schema(
     skills: {
       type: [String],
     },
+    isVerified:{
+      type:Boolean,
+      default:false
+    },
+    verificationToken: String,
   },
   { timestamps: true }
 );

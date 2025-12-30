@@ -3,7 +3,8 @@ import User from "../models/user.model.js";
 
 export const userAuth = async (req, res, next) => {
   try {
-    const { token } = req.cookie;
+    const cookies = req.cookies;
+    const {token} = cookies;
     if (!token) {
       return res.status(401).send("Unauthorized User. Please Login");
     }
@@ -11,7 +12,7 @@ export const userAuth = async (req, res, next) => {
     const decodedObj = jwt.verify(token, process.env.JWT_SECRET_KEY);
 
     const { userId } = decodedObj;
-    const user = await User.findById(userId);
+    const user = await User.findById({_id:userId});
     if (!user) {
       throw new Error("User Not Found");
     }
