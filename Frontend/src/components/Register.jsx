@@ -82,8 +82,8 @@ const Register = () => {
           headers: {
             "Content-Type": "multipart/form-data", // Required for files
           },
-        },
-        { withCredentials: true }
+          withCredentials: true,
+        }
       );
 
       //   return response;
@@ -91,7 +91,7 @@ const Register = () => {
       setError("");
       navigate("/feed");
     } catch (error) {
-      const finalErrorMsg = error?.response?.data.slice(6)
+      const finalErrorMsg = error?.response?.data.slice(6);
       setError(finalErrorMsg || "Something Went Wrong");
       setToast(true);
       setTimeout(() => {
