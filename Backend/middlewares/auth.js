@@ -24,3 +24,14 @@ export const userAuth = async (req, res, next) => {
     return res.status(400).send("ERROR: " + error.message);
   }
 };
+
+
+//--For future purposes--
+// export const requireVerification = (req, res, next) => {
+//   if (!req.user.isVerified) {
+//     return res.status(403).json({ 
+//       message: "Action restricted. Please verify your email to post or comment." 
+//     });
+//   }
+//   next();
+// };
