@@ -93,7 +93,7 @@ const EditProfile = () => {
       setError("");
       dispatch(addUser(response.data));
       setToast(true);
-      setSuccessMessage("Profile Edited Successfully");
+      setSuccessMessage("Profile Updated Successfully");
       setTimeout(() => {
         setToast(false);
       }, 3000);
