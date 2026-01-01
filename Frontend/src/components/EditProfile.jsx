@@ -1,26 +1,27 @@
 import axios from "axios";
 import { useState } from "react";
 import { addUser } from "../../store/userSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 
-const Register = () => {
+const EditProfile = () => {
+  const user = useSelector((store) => store.user);
   const navigate = useNavigate();
   const [userData, setUserData] = useState({
-    firstName: "",
-    lastName: "",
-    emailId: "",
-    password: "",
-    age: "",
-    gender: "",
-    about: "",
+    firstName: user?.firstName,
+    lastName: user?.lastName,
+    age: user?.age,
+    gender: user?.gender,
+    about: user?.about,
   });
-
   const [avatar, setAvatar] = useState(null);
   const [toast, setToast] = useState(false);
   const [error, setError] = useState("");
-  const [preview, setPreview] = useState("");
+  const [successMessage, setSuccessMessage] = useState(null);
+  const [preview, setPreview] = useState(null);
   const dispatch = useDispatch();
+
+  if (!user) return;
 
   const handleInput = (e) => {
     const { name, value } = e.target;
@@ -43,43 +44,43 @@ const Register = () => {
   const handleUserRegister = async (e) => {
     try {
       e.preventDefault();
-      if (
-        !userData.firstName ||
-        !userData.emailId ||
-        !userData.age ||
-        !userData.password ||
-        !userData.gender
-      ) {
-        setError("All fields are Required");
+      if (!userData.firstName) {
+        setError("FirstName is required");
         setToast(true);
         setTimeout(() => {
           setToast(false);
         }, 3000);
-        return; // <--- Stops the function here. The backend request will NOT happen.
+        return;
+      } else if (!userData.age) {
+        setError("Age is required");
+        setToast(true);
+        setTimeout(() => {
+          setToast(false);
+        }, 3000);
+        return;
+      } else if (!userData.gender) {
+        setError("Gender is required");
+        setToast(true);
+        setTimeout(() => {
+          setToast(false);
+        }, 3000);
+        return;
       }
+
       const formData = new FormData();
       console.log(userData);
       formData.append("firstName", userData.firstName);
       formData.append("lastName", userData.lastName);
-      formData.append("emailId", userData.emailId);
-      formData.append("password", userData.password);
       formData.append("age", userData.age);
       formData.append("gender", userData.gender);
       formData.append("about", userData.about);
-      
+
       if (avatar) {
         formData.append("avatar", avatar);
       }
 
-      //*Debugging
-      //   console.log("--- FORM DATA CONTENTS ---");
-      //   for (let [key, value] of formData.entries()) {
-      //     console.log(`${key}:`, value);
-      //   }
-      //   console.log("--------------------------");
-
       const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/register`,
+        `${import.meta.env.VITE_BACKEND_URL}/profile/edit`,
         formData,
         {
           headers: {
@@ -89,14 +90,19 @@ const Register = () => {
         }
       );
 
-      //   return response;
-      dispatch(addUser(response.data));
       setError("");
-      navigate("/feed");
+      dispatch(addUser(response.data));
+      setToast(true);
+      setSuccessMessage("Profile Edited Successfully");
+      setTimeout(() => {
+        setToast(false);
+      }, 3000);
+    //   navigate("/profile");
     } catch (error) {
       const finalErrorMsg = error?.response?.data.slice(6);
       setError(finalErrorMsg || "Something Went Wrong");
       setToast(true);
+
       setTimeout(() => {
         setToast(false);
       }, 3000);
@@ -105,11 +111,18 @@ const Register = () => {
   };
   return (
     <div className="flex flex-col my-4 items-center justify-center">
-      <h2 className="text-3xl font-bold">Create Account</h2>
-      {toast && (
+      <h2 className="text-3xl font-bold">Edit Profile</h2>
+      {toast && error !== "" && (
         <div className="toast toast-top toast-center">
           <div className="alert alert-info bg-warning-content text-white">
             <span>{error}</span>
+          </div>
+        </div>
+      )}
+      {toast && successMessage && (
+        <div className="toast toast-top toast-center">
+          <div className="alert alert-success">
+            <span>{successMessage}</span>
           </div>
         </div>
       )}
@@ -139,35 +152,17 @@ const Register = () => {
             id="lastName"
           />
         </div>
-        <div className="flex flex-col my-2">
-          <label htmlFor="emailId">Email</label>
-          <input
-            type="text"
-            className="border-2 p-1 rounded-md mt-1 border-b-emerald-100 font-medium"
-            name="emailId"
-            value={userData.emailId}
-            onChange={handleInput}
-            id="emailId"
-          />
-        </div>
-        <div className="flex flex-col my-2">
-          <label htmlFor="password">Password</label>
-          <input
-            type="password"
-            name="password"
-            className="border-2 p-1 rounded-md mt-1 border-b-emerald-100 font-medium"
-            value={userData.password}
-            onChange={handleInput}
-            id="password"
-          />
-        </div>
         <div className="flex items-center space-x-4 my-4">
           {/* 1. The Avatar Preview (Visual Feedback) */}
           <div className="shrink-0">
             <img
               className="h-14 w-14 object-cover rounded-full border border-gray-200"
               // Use the preview state if available, otherwise a default placeholder
-              src={preview || "https://placehold.co/150?text=User"}
+              src={
+                preview ||
+                user?.profileImageUrl ||
+                "https://placehold.co/150?text=User"
+              }
               alt="Avatar preview"
             />
           </div>
@@ -255,21 +250,12 @@ const Register = () => {
             onClick={handleUserRegister}
             className="px-4 py-2 bg-fuchsia-600 text-white rounded-md hover:bg-fuchsia-700 transition-colors cursor-pointer"
           >
-            Register
+            Save Profile
           </button>
-        </div>
-        <div className="mb-2 mt-4 font-medium">
-          Already have an account?{" "}
-          <Link
-            to="/login"
-            className="hover:border-b-gray-700 hover:border-b-2 mx-1"
-          >
-            Login
-          </Link>
         </div>
       </form>
     </div>
   );
 };
 
-export default Register;
+export default EditProfile;

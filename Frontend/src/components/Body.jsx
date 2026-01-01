@@ -12,6 +12,8 @@ import Feed from "./Feed.jsx";
 import Home from "./Home.jsx";
 import Error from "./Error.jsx";
 import Register from "./Register.jsx";
+import EditProfile from "./EditProfile.jsx";
+// import ResendVerification from "./EmailVerification.jsx";
 
 const Body = () => {
   const appRouter = createBrowserRouter(
@@ -22,6 +24,8 @@ const Body = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/profile/edit" element={<EditProfile />} />
+        {/* <Route path="/email/verify" element={<ResendVerification />} /> */}
       </Route>
     )
   );
