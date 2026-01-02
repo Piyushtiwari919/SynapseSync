@@ -9,3 +9,5 @@ requestRouter.post(
   userAuth,
   handleRequest
 );
+
+export default requestRouter;

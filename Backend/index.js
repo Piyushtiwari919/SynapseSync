@@ -7,6 +7,7 @@ import authRouter from "./routes/auth.route.js";
 import profileRouter from "./routes/profile.route.js";
 import userRouter from "./routes/user.route.js";
 import connectDB from "./config/connectDB.js";
+import requestRouter from "./routes/request.route.js";
 
 const corsOptions = {
   origin: "http://localhost:5173",
@@ -22,6 +23,7 @@ app.use(express.static("./public"));
 app.use("/", authRouter);
 app.use("/", profileRouter);
 app.use("/", userRouter);
+app.use("/", requestRouter);
 
 const PORT = process.env.PORT || 5000;
 
