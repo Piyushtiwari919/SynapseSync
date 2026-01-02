@@ -45,17 +45,18 @@ authController.register = async (req, res) => {
     });
     await user.save();
 
-    const token = await user.getJWT();
-    if (!token) {
+    const refreshToken = await user.getJWTRefreshToken();
+    if (!refreshToken) {
       throw new Error("Something went wrong");
     }
 
     const timeOfCookie = 24 * 60 * 60 * 1000;
 
-    res.cookie("token", token, {
+    res.cookie("refeshToken", refreshToken, {
       expires: new Date(Date.now() + timeOfCookie),
       httpOnly: true,
       secure: true,
+      sameSite: "strict",
     });
 
     const sanatizedUser = getSanatizedUser(user);
@@ -87,21 +88,25 @@ authController.login = async (req, res) => {
       throw new Error("Invalid Credentials");
     }
 
-    const token = await user.getJWT();
-    if (!token) {
+    const accessToken = await user.getJWTAccessToken();
+    const refreshToken = await user.getJWTRefreshToken();
+    if (!refreshToken || !accessToken) {
       throw new Error("Something went wrong");
     }
 
-    const timeOfCookie = 7 * 24 * 60 * 60 * 1000;
+    const timeOfRefreshCookie = 7 * 24 * 60 * 60 * 1000;
 
-    res.cookie("token", token, {
-      expires: new Date(Date.now() + timeOfCookie),
+    res.cookie("refreshToken", refreshToken, {
+      expires: new Date(Date.now() + timeOfRefreshCookie),
       httpOnly: true,
       secure: true,
+      sameSite: "strict",
     });
 
     const sanatizedUser = getSanatizedUser(user);
-    return res.status(200).send(sanatizedUser);
+    return res
+      .status(200)
+      .send({ user: sanatizedUser, accessToken: accessToken });
   } catch (error) {
     return res.status(400).send(`ERROR: ${error.message}`);
   }
@@ -110,14 +115,14 @@ authController.login = async (req, res) => {
 authController.logout = async (req, res) => {
   try {
     const cookies = req.cookies;
-    const { token } = cookies;
-    const decodedMessage = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const { refreshToken } = cookies;
+    const decodedMessage = jwt.verify(refreshToken, process.env.JWT_SECRET_KEY);
     if (!decodedMessage) {
       throw new Error("Something went wrong");
     }
 
     return res
-      .cookie("token", null, { expires: new Date(Date.now()) })
+      .cookie("refreshToken", null, { expires: new Date(Date.now()) })
       .send("Logged Out Successfully");
   } catch (error) {
     return res.status(401).send(`ERROR: ${error.message}`);

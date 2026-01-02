@@ -31,26 +31,26 @@ const userSchema = new Schema(
         if (!validator.isURL(value)) {
           throw new Error(`Please Enter a valid Image URL: ${value}`);
         }
-      }
+      },
     },
-    age:{
-        type:Number,
-        trim:true
+    age: {
+      type: Number,
+      trim: true,
     },
-    gender:{
-        type:String,
-        enum:{
-            values:["male","female","others"],
-            message:`{VALUE} is not a valid gender type`
-        }
+    gender: {
+      type: String,
+      enum: {
+        values: ["male", "female", "others"],
+        message: `{VALUE} is not a valid gender type`,
+      },
     },
-    role:{
-        type:String,
-        enum:{
-            values:["user","admin"],
-            message:`{VALUE} is not a valid role type`
-        },
-        default:"user"
+    role: {
+      type: String,
+      enum: {
+        values: ["user", "admin"],
+        message: `{VALUE} is not a valid role type`,
+      },
+      default: "user",
     },
     about: {
       type: String,
@@ -60,19 +60,32 @@ const userSchema = new Schema(
     skills: {
       type: [String],
     },
-    isVerified:{
-      type:Boolean,
-      default:false
+    isVerified: {
+      type: Boolean,
+      default: false,
     },
     verificationToken: String,
   },
   { timestamps: true }
 );
 
-userSchema.methods.getJWT = function (){
-    const token = jwt.sign({userId:this._id},process.env.JWT_SECRET_KEY,{expiresIn:process.env.JWT_EXPIRY_TIME});
-    return token;
-}
+userSchema.methods.getJWTRefreshToken = function () {
+  const refreshToken = jwt.sign(
+    { userId: this._id },
+    process.env.JWT_SECRET_KEY,
+    { expiresIn: process.env.JWT_REFRESH_TOKEN_EXPIRY_TIME }
+  );
+  return refreshToken;
+};
+
+userSchema.methods.getJWTAccessToken = function () {
+  const accessToken = jwt.sign(
+    { userId: this._id, emailId: this.emailId, firstName:this.firstName },
+    process.env.JWT_SECRET_KEY,
+    { expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRY_TIME }
+  );
+  return accessToken;
+};
 
 userSchema.methods.passwordValidation = async function (password) {
   const isPasswordCorrect = await bcrypt.compare(password, this.password);

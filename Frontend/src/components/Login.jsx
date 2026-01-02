@@ -25,7 +25,7 @@ const Login = () => {
         { emailId, password },
         { withCredentials: true }
       );
-      dispatch(addUser(res.data));
+      dispatch(addUser(res?.data?.user));
       setError("");
       navigate("/feed");
       console.log(res);
@@ -35,7 +35,7 @@ const Login = () => {
       setTimeout(() => {
         setToast(false);
       }, 3000);
-      console.log(error);;
+      console.log(error);
     }
   };
   return (

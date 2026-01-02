@@ -4,12 +4,12 @@ import User from "../models/user.model.js";
 export const userAuth = async (req, res, next) => {
   try {
     const cookies = req.cookies;
-    const {token} = cookies;
-    if (!token) {
+    const {refreshToken} = cookies;
+    if (!refreshToken) {
       return res.status(401).send("Unauthorized User. Please Login");
     }
 
-    const decodedObj = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const decodedObj = jwt.verify(refreshToken, process.env.JWT_SECRET_KEY);
 
     const { userId } = decodedObj;
     const user = await User.findById({_id:userId});

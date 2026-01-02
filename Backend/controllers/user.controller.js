@@ -17,9 +17,10 @@ const getRequestsRecieved = async (req, res) => {
       "about",
     ]);
 
-    return res
-      .status(200)
-      .json({ message: "Data fetched successfully", connectionRequests });
+    return res.status(200).json({
+      message: "Data fetched successfully",
+      connectionRequestsRecieved: connectionRequests,
+    });
   } catch (error) {
     return res.status(400).send(`ERROR: ${error.message}`);
   }
