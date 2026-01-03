@@ -36,7 +36,6 @@ const getConnections = async (req, res) => {
         { toUserId: loggedInUser._id, status: "accepted" },
       ],
     }).populate("fromUserId toUserId", "firstName lastName photUrl");
-
     const filteredResponse = connectionRequests.map((connection) => {
       if (connection.fromUserId.toString() === loggedInUser._id) {
         return connection.fromUserId;
