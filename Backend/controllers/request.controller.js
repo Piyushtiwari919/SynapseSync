@@ -1,14 +1,14 @@
 import ConnectionRequest from "../models/connectionRequest.model.js";
 import User from "../models/user.model.js";
 
-const handleRequest = async (req, res) => {
+const handleRequestSend = async (req, res) => {
   try {
     const user = req.user;
     const fromUserId = user._id;
     const toUserId = req.params.toUserId;
     const status = req.params.status;
 
-    const allowedStatus = ["interested", "ignored"];
+    const allowedStatus = ["interested"];
 
     if (!allowedStatus.includes(status)) {
       throw new Error("Invalid Status Type");
@@ -39,7 +39,7 @@ const handleRequest = async (req, res) => {
     });
 
     res.json({
-      message: "Connection Request Send Successfully",
+      message: "Api Call Successfull",
       connectionRequest,
     });
   } catch (error) {
@@ -56,4 +56,41 @@ const handleRequest = async (req, res) => {
   }
 };
 
-export { handleRequest };
+const handleRequestRecieved = async (req, res) => {
+  try {
+    const loggedInUser = req.user;
+    const { fromUserId, status } = req.params;
+    if (!fromUserId) {
+      throw new Error("Invalid Request Id");
+    }
+
+    const allowedStatus = ["accepted", "rejected"];
+    const isStatusValid = allowedStatus.includes(status);
+    if (!isStatusValid) {
+      throw new Error("Invalid Status Type");
+    }
+
+    const recievedConnectionRequest = await ConnectionRequest.findOne({
+      $and: [
+        { fromUserId: fromUserId },
+        { toUserId: loggedInUser._id },
+        { status: "interested" },
+      ],
+    });
+
+    if (!recievedConnectionRequest) {
+      throw new Error("Connection Request not found");
+    }
+
+    recievedConnectionRequest.status = status;
+    const modifiedConnectionRequest = await recievedConnectionRequest.save();
+    return res.status(200).json({
+      message: `Connection Request is ${status}`,
+      modifiedConnectionRequest,
+    });
+  } catch (error) {
+    return res.status(400).send(`ERROR: ${error.message}`);
+  }
+};
+
+export { handleRequestSend, handleRequestRecieved };

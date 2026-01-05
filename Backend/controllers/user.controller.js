@@ -1,7 +1,7 @@
 import ConnectionRequest from "../models/connectionRequest.model.js";
 import Post from "../models/post.model.js";
 
-const getRequestsRecieved = async (req, res) => {
+const getRequestsReceived = async (req, res) => {
   try {
     const loggedInUser = req.user;
 
@@ -19,7 +19,7 @@ const getRequestsRecieved = async (req, res) => {
 
     return res.status(200).json({
       message: "Data fetched successfully",
-      connectionRequestsRecieved: connectionRequests,
+      connectionRequestsReceived: connectionRequests,
     });
   } catch (error) {
     return res.status(400).send(`ERROR: ${error.message}`);
@@ -35,7 +35,7 @@ const getConnections = async (req, res) => {
         { fromUserId: loggedInUser._id, status: "accepted" },
         { toUserId: loggedInUser._id, status: "accepted" },
       ],
-    }).populate("fromUserId toUserId", "firstName lastName photUrl");
+    }).populate("fromUserId toUserId", "firstName lastName photUrl about");
     const filteredResponse = connectionRequests.map((connection) => {
       if (connection.fromUserId.toString() === loggedInUser._id) {
         return connection.fromUserId;
@@ -106,4 +106,4 @@ const getFeed = async (req, res) => {
   }
 };
 
-export { getRequestsRecieved, getConnections, getFeed };
+export { getRequestsReceived, getConnections, getFeed };
