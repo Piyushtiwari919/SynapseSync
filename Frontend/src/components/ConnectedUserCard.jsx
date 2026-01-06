@@ -1,7 +1,10 @@
-const ConnectedUserCard = ({user})=>{
+import { useSelector } from "react-redux";
+
+const ConnectedUserCard = ()=>{
+    // const user = useSelector((store)=> store.user);
     return(
         <div>
-            user1
+            {/* userinfo */}
         </div>
     )
 };

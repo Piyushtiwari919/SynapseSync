@@ -3,8 +3,8 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addConnections } from "../../store/connectionSlice.js";
 import ConnectedUserCard from "./ConnectedUserCard.jsx";
-import {Search} from "lucide-react";
-import EmptyState from "./EmptyState.jsx";
+import { Search } from "lucide-react";
+import EmptyState from "./EmptyConnectionState.jsx";
 import { useState } from "react";
 import ErrorState from "./ErrorState.jsx";
 
@@ -35,7 +35,7 @@ const Connection = () => {
   }, []);
 
   if (error) {
-    return <ErrorState onRetry={getConnections} />;
+    return <ErrorState onRetry={getConnections} isConnection={true} />;
   }
 
   if (isLoading) {

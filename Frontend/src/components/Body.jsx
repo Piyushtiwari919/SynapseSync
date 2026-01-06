@@ -14,6 +14,7 @@ import Error from "./Error.jsx";
 import Register from "./Register.jsx";
 import EditProfile from "./EditProfile.jsx";
 import Connection from "./Connection.jsx";
+import Request from "./Request.jsx";
 // import ResendVerification from "./EmailVerification.jsx";
 
 const Body = () => {
@@ -27,6 +28,7 @@ const Body = () => {
         <Route path="/profile" element={<Profile />} />
         <Route path="/connections" element={<Connection />} />
         <Route path="/profile/edit" element={<EditProfile />} />
+        <Route path="/requests" element={<Request />} />
         {/* <Route path="/email/verify" element={<ResendVerification />} /> */}
       </Route>
     )

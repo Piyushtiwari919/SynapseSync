@@ -1,6 +1,6 @@
 import { WifiOff, RefreshCw } from "lucide-react";
 
-const ErrorState = ({ onRetry }) => {
+const ErrorState = ({ onRetry, isConnection }) => {
   return (
     <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-4">
       <div className="bg-red-50 p-6 rounded-full mb-6">
@@ -11,10 +11,17 @@ const ErrorState = ({ onRetry }) => {
         Something went wrong
       </h2>
 
-      <p className="text-gray-500 max-w-md mb-8">
-        We couldn't load your connections right now. It might be a temporary
-        issue with our servers or your internet connection.
-      </p>
+      {isConnection ? (
+        <p className="text-gray-500 max-w-md mb-8">
+          We couldn't load your connections right now. It might be a temporary
+          issue with our servers or your internet connection.
+        </p>
+      ) : (
+        <p className="text-gray-500 max-w-md mb-8">
+          We couldn't load your the request(s) right now. It might be a
+          temporary issue with our servers or your internet connection.
+        </p>
+      )}
 
       <button
         onClick={onRetry}
