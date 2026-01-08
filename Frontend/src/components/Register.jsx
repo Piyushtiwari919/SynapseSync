@@ -58,7 +58,7 @@ const Register = () => {
         return; // <--- Stops the function here. The backend request will NOT happen.
       }
       const formData = new FormData();
-      console.log(userData);
+      // console.log(userData);
       formData.append("firstName", userData.firstName);
       formData.append("lastName", userData.lastName);
       formData.append("emailId", userData.emailId);

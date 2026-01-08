@@ -33,7 +33,7 @@ const EditProfile = () => {
 
   const handleImage = (e) => {
     const file = e.target.files[0]; // Access the first selected file
-    console.log(e.target.files);
+    // console.log(e.target.files);
     // Validating that a file was actually selected
     if (file) {
       setAvatar(file); // Store the actual file object for the backend
@@ -68,7 +68,7 @@ const EditProfile = () => {
       }
 
       const formData = new FormData();
-      console.log(userData);
+      // console.log(userData);
       formData.append("firstName", userData.firstName);
       formData.append("lastName", userData.lastName);
       formData.append("age", userData.age);

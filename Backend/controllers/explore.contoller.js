@@ -26,7 +26,7 @@ const getProfiles = async (req, res) => {
 
     getConnections.forEach((connection) => {
       const othersIds =
-        connection.fromUserId.toString() === loggedInUser._id
+        connection.fromUserId.toString() === loggedInUser._id.toString()
           ? connection.toUserId.toString()
           : connection.fromUserId.toString();
       connectionsIdsSet.add(othersIds);

@@ -7,31 +7,32 @@ const handleRequestSend = async (req, res) => {
     const fromUserId = user._id;
     const toUserId = req.params.toUserId;
     const status = req.params.status;
-
     const allowedStatus = ["interested"];
-
+    
     if (!allowedStatus.includes(status)) {
       throw new Error("Invalid Status Type");
     }
-
+    
     const toUser = await User.findById({ _id: toUserId });
     if (!toUser) {
       return res.status(404).json({
         message: "Invalid connection Request : User doesn't exist",
       });
     }
-
+    
     const existingConnectionRequest = await ConnectionRequest.find({
       $or: [
         { toUserId: toUserId, fromUserId: fromUserId },
         { fromUserId: toUserId, toUserId: fromUserId },
       ],
     });
-    if (existingConnectionRequest) {
+
+    if (existingConnectionRequest.length>0) {
       return res.status(404).json({
         message: "Connection Request Already exist",
       });
     }
+    
     const connectionRequest = await ConnectionRequest.create({
       fromUserId: fromUserId,
       toUserId: toUserId,
@@ -46,6 +47,7 @@ const handleRequestSend = async (req, res) => {
     const serialized = JSON.parse(
       JSON.stringify(err, Object.getOwnPropertyNames(err))
     );
+    // console.log(serialized);
 
     return res.status(400).json({
       message: "Invalid Request : Please check the url or data",

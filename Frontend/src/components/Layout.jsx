@@ -18,7 +18,7 @@ const Layout = () => {
       );
       dispatch(addUser(res?.data));
       navigate("/feed");
-      console.log(res);
+      // console.log(res);
     } catch (error) {
       if (error.status === 401) {
         // navigate("/");

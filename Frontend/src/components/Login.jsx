@@ -28,7 +28,7 @@ const Login = () => {
       dispatch(addUser(res?.data?.user));
       setError("");
       navigate("/feed");
-      console.log(res);
+      // console.log(res);
     } catch (error) {
       setError(error?.response?.data || "Something went Wrong");
       setToast(true);

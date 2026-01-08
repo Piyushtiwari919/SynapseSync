@@ -14,7 +14,7 @@ requestRouter.post(
 );
 
 requestRouter.post(
-  "request/review/:status/:toUserId",
+  "/request/review/:status/:fromUserId",
   userAuth,
   handleRequestRecieved
 );
