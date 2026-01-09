@@ -8,10 +8,10 @@ const requestSlice = createSlice({
       return action.payload;
     },
     removeRequest: (state, action) => {
-      state = state.filter((connection) => {
+      const newState = state.filter((connection) => {
         return connection?.fromUserId?._id !== action.payload;
       });
-      return state;
+      return newState;
     },
   },
 });
