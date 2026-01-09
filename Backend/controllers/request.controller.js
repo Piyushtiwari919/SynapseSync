@@ -8,18 +8,23 @@ const handleRequestSend = async (req, res) => {
     const toUserId = req.params.toUserId;
     const status = req.params.status;
     const allowedStatus = ["interested"];
-    
+    if (fromUserId.toString() === toUserId.toString()) {
+      return res
+        .status(400)
+        .json({ message: "You cannot send connection request to your self" });
+    }
+
     if (!allowedStatus.includes(status)) {
       throw new Error("Invalid Status Type");
     }
-    
+
     const toUser = await User.findById({ _id: toUserId });
     if (!toUser) {
       return res.status(404).json({
         message: "Invalid connection Request : User doesn't exist",
       });
     }
-    
+
     const existingConnectionRequest = await ConnectionRequest.find({
       $or: [
         { toUserId: toUserId, fromUserId: fromUserId },
@@ -27,12 +32,12 @@ const handleRequestSend = async (req, res) => {
       ],
     });
 
-    if (existingConnectionRequest.length>0) {
+    if (existingConnectionRequest.length > 0) {
       return res.status(404).json({
         message: "Connection Request Already exist",
       });
     }
-    
+
     const connectionRequest = await ConnectionRequest.create({
       fromUserId: fromUserId,
       toUserId: toUserId,

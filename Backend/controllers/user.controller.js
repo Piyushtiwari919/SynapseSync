@@ -35,12 +35,16 @@ const getConnections = async (req, res) => {
         { fromUserId: loggedInUser._id, status: "accepted" },
         { toUserId: loggedInUser._id, status: "accepted" },
       ],
-    }).populate("fromUserId toUserId", "firstName lastName photUrl about");
+    }).populate(
+      "fromUserId toUserId",
+      "firstName lastName profileImageUrl about"
+    );
+
     const filteredResponse = connectionRequests.map((connection) => {
-      if (connection.fromUserId.toString() === loggedInUser._id) {
-        return connection.fromUserId;
+      if (connection.fromUserId.toString() === loggedInUser._id.toString()) {
+        return connection.toUserId;
       }
-      return connection.toUserId;
+      return connection.fromUserId;
     });
 
     return res.status(200).send(filteredResponse);
@@ -64,23 +68,24 @@ const getFeed = async (req, res) => {
       status: { $ne: "ignored" },
     }).populate("fromUserId toUserId");
 
-    const connectedUsers = new Set();
+    const connectedUsersIds = new Set();
 
     connectionRequest.forEach((connection) => {
       const othersIds =
-        connection.fromUserId.toString() === loggedInUser._id
-          ? connection.toUserId.toString()
-          : connection.fromUserId.toString();
-      connectedUsers.add(othersIds);
+        connection.fromUserId.toString() === loggedInUser._id.toString()
+          ? connection.toUserId
+          : connection.fromUserId;
+      connectedUsersIds.add(othersIds._id.toString());
     });
 
     const allPosts = await Post.find({
-      $and: [{ userId: { $in: Array.from(connectedUsers) } }],
+      $and: [{ userId: { $in: Array.from(connectedUsersIds) } }],
     })
       .sort({ createdAt: -1 }) //Sorted by new posts first
       .skip(skip)
       .limit(limit)
-      .populate("userId", "firstName lastName profileImageUrl");
+      .populate("userId", "firstName lastName profileImageUrl")
+      .lean();
 
     let morePosts = [];
 
@@ -90,12 +95,13 @@ const getFeed = async (req, res) => {
         $and: [
           { _id: { $nin: existingPostIds } },
           { userId: { $ne: loggedInUser._id } },
-          { userId: { $nin: Array.from(connectedUsers) } },
+          { userId: { $nin: Array.from(connectedUsersIds) } },
         ],
       })
         .skip(skip)
         .limit(limit - allPosts.length)
-        .populate("userd", "firstName lastName profileImageUrl");
+        .populate("userd", "firstName lastName profileImageUrl")
+        .lean();
     }
 
     return res
