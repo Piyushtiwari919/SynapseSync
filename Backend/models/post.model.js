@@ -25,6 +25,8 @@ const postSchema = new Schema(
   { timestamps: true }
 );
 
+postSchema.index({ userId: 1, createdAt: -1 });
+
 const Post = model("Post", postSchema);
 
 export default Post;

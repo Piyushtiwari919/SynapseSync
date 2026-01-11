@@ -16,6 +16,7 @@ import EditProfile from "./EditProfile.jsx";
 import Connection from "./Connection.jsx";
 import Request from "./Request.jsx";
 import Explore from "./Explore.jsx";
+import ViewProfile from "./ViewProfile.jsx";
 // import ResendVerification from "./EmailVerification.jsx";
 
 const Body = () => {
@@ -31,6 +32,7 @@ const Body = () => {
         <Route path="/profile/edit" element={<EditProfile />} />
         <Route path="/requests" element={<Request />} />
         <Route path="/explore" element={<Explore />} />
+        <Route path="/profile/:userId" element={<ViewProfile />} />
         {/* <Route path="/email/verify" element={<ResendVerification />} /> */}
       </Route>
     )

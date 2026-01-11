@@ -44,9 +44,9 @@ const EmptyRequestsState = () => {
       </div>
 
       {/* Action Section */}
-      <div className="mt-8">
+      <div className="mt-8 ">
         <Link to="/explore">
-          <button className="group relative inline-flex items-center gap-3 bg-cyan-600/10 hover:bg-cyan-600 text-cyan-400 hover:text-white px-8 py-3.5 rounded-full font-medium transition-all duration-300 border border-cyan-600/50 hover:border-cyan-500 hover:shadow-[0_0_20px_rgba(6,182,212,0.5)]">
+          <button className="group hover:cursor-pointer relative inline-flex items-center gap-3 bg-cyan-600/10 hover:bg-cyan-600 text-cyan-400 hover:text-white px-8 py-3.5 rounded-full font-medium transition-all duration-300 border border-cyan-600/50 hover:border-cyan-500 hover:shadow-[0_0_20px_rgba(6,182,212,0.5)]">
             <Search size={18} className="group-hover:scale-110 transition-transform" />
             <span>Discover People</span>
             
