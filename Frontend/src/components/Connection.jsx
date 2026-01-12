@@ -57,8 +57,6 @@ const Connection = () => {
   const filteredConnections = connections.filter((c) =>
     c.firstName.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  // --- SENIOR LOGIC: DYNAMIC LAYOUT ---
   // If we found only 1 person (either total or after search), we center them.
   // Otherwise, we use the grid.
   const isSingleItem = filteredConnections.length === 1;
