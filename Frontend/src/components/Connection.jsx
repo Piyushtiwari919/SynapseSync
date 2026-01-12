@@ -1,11 +1,10 @@
 import axios from "axios";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addConnections } from "../../store/connectionSlice.js";
 import ConnectedUserCard from "./ConnectedUserCard.jsx";
-import { Search } from "lucide-react";
+import { Search, Users, Sparkles } from "lucide-react"; // Added Sparkles for 'human' touch
 import EmptyState from "./EmptyConnectionState.jsx";
-import { useState } from "react";
 import ErrorState from "./ErrorState.jsx";
 import UserRequestSkeleton from "./UserRequestSkeleton.jsx";
 
@@ -15,13 +14,13 @@ const Connection = () => {
   const [error, setError] = useState(false);
   const dispatch = useDispatch();
   const connections = useSelector((store) => store.connections);
+
   const getConnections = async () => {
     try {
       const response = await axios.get(
         `${import.meta.env.VITE_BACKEND_URL}/user/connections`,
         { withCredentials: true }
       );
-
       dispatch(addConnections(response?.data));
     } catch (error) {
       console.error(error);
@@ -39,15 +38,17 @@ const Connection = () => {
     return <ErrorState onRetry={getConnections} isConnection={true} />;
   }
 
+  // --- LOADING STATE ---
   if (isLoading) {
     return (
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="h-8 w-48 bg-gray-800 rounded-full mb-8 mx-auto md:mx-0 animate-pulse"></div>
-        <div className="flex flex-wrap justify-center gap-3 md:gap-6">
-          {/* Create an array of 4 items to map over */}
-          {[...Array(4)].map((_, i) => (
-            <UserRequestSkeleton key={i} />
-          ))}
+      <div className="w-full min-h-[calc(100vh-4rem)] bg-[#09090b] p-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="h-8 w-48 bg-zinc-800 rounded-lg mb-8 animate-pulse"></div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <UserRequestSkeleton key={i} />
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -57,60 +58,87 @@ const Connection = () => {
     c.firstName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  return connections.length === 0 || !connections ? (
-    <EmptyState />
-  ) : (
-    <div className="min-h-dvh bg-neutral-700 p-6 md:p-10">
+  // --- SENIOR LOGIC: DYNAMIC LAYOUT ---
+  // If we found only 1 person (either total or after search), we center them.
+  // Otherwise, we use the grid.
+  const isSingleItem = filteredConnections.length === 1;
+
+  return (
+    <div className="w-full min-h-[calc(100vh-4rem)] bg-[#0a0a0a] bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-zinc-900 via-[#0a0a0a] to-black text-zinc-100 p-4 md:p-8 pb-24">
       <div className="max-w-7xl mx-auto">
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row justify-between items-end md:items-center mb-8 gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-50 tracking-tight">
-              Connections
+        {/* --- HEADER --- */}
+        <div className="flex flex-col md:flex-row justify-between items-end md:items-center mb-10 gap-6">
+          <div className="relative">
+            <div className="absolute -top-6 -left-6 w-20 h-20 bg-cyan-500/10 rounded-full blur-2xl"></div>
+
+            <h1 className="relative text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+              My Network
+              <span className="text-sm font-medium text-cyan-400 bg-cyan-950/30 px-3 py-1 rounded-full border border-cyan-900/50">
+                {connections.length} Connections
+              </span>
             </h1>
-            <p className="text-gray-100 mt-1">
-              You have {connections.length}{" "}
-              {connections.length === 1 ? "friend" : "friends"} in your network
+            <p className="relative text-zinc-400 mt-2 text-sm max-w-md leading-relaxed">
+              Your professional circle. Keep interactions meaningful and stay
+              updated with their latest activities.
             </p>
           </div>
 
-          {/* Search Bar */}
-          <div className="relative w-full md:w-80">
-            <Search
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-              size={18}
-            />
-            <input
-              type="text"
-              placeholder="Search connections..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500 transition-all text-black"
-            />
+          {/* --- SEARCH BAR --- */}
+          <div className="relative w-full md:w-80 group">
+            <div className="absolute inset-0 bg-linear-to-r from-cyan-500 to-blue-500 rounded-xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
+            <div className="relative bg-zinc-900 rounded-xl flex items-center border border-zinc-800 focus-within:border-cyan-500/50 transition-colors">
+              <Search className="ml-3 text-zinc-500" size={18} />
+              <input
+                type="text"
+                id="search-input"
+                placeholder="Search connections..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full px-3 py-3 bg-transparent text-white placeholder:text-zinc-600 focus:outline-none text-sm"
+              />
+            </div>
           </div>
         </div>
 
-        {/* The Grid */}
-        {filteredConnections.length > 0 ? (
-          <div className="flex flex-wrap justify-center gap-3 md:gap-6">
+        {/* --- CONTENT AREA --- */}
+        {connections.length === 0 || !connections ? (
+          <div className="flex justify-center py-20">
+            <EmptyState />
+          </div>
+        ) : filteredConnections.length > 0 ? (
+          // If 'isSingleItem' is true -> use 'flex justify-center' (Centers the one card)
+          // If 'isSingleItem' is false -> use 'grid' (Standard responsive layout)
+          <div
+            className={
+              isSingleItem
+                ? "flex justify-center w-full animate-in fade-in zoom-in duration-500"
+                : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500"
+            }
+          >
             {filteredConnections.map((connection) => (
-              <ConnectedUserCard
+              <div
                 key={connection._id || connection.firstName}
-                user={connection}
-              />
+                className={isSingleItem ? "w-full max-w-sm" : "w-full"}
+              >
+                <ConnectedUserCard user={connection} />
+              </div>
             ))}
           </div>
         ) : (
-          /* Empty Search Result State */
-          <div className="text-center py-20">
-            <p className="text-gray-100">
-              No connections found matching "{searchTerm}"
+          /* Empty Search Result */
+          <div className="flex flex-col items-center justify-center py-24 text-center">
+            <div className="bg-zinc-900/50 p-6 rounded-full border border-zinc-800/50 mb-4 shadow-inner">
+              <Sparkles size={32} className="text-zinc-600" />
+            </div>
+            <h3 className="text-lg font-medium text-white">No matches found</h3>
+            <p className="text-zinc-500 mt-2">
+              "{searchTerm}" isn't in your list. Try a different name?
             </p>
             <button
               onClick={() => setSearchTerm("")}
-              className="text-cyan-600 font-medium mt-2 hover:underline hover:cursor-pointer"
+              className="mt-6 text-cyan-400 hover:text-cyan-300 text-sm font-medium hover:underline transition-all"
             >
-              Clear search
+              Clear filters
             </button>
           </div>
         )}

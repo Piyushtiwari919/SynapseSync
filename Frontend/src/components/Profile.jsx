@@ -1,14 +1,26 @@
 import { useDispatch, useSelector } from "react-redux";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { toggleImageVisibility } from "../../store/stateSlice.js";
 import { Activity } from "react";
+import { Edit3, ShieldCheck, MapPin, Grid, Users } from "lucide-react";
+
+import UserPosts from "./UserPosts.jsx";
+import UserNetwork from "./UserNetwork.jsx";
+import ProfileImage from "./ProfileImage.jsx";
 
 const Profile = () => {
+  const [activeTab, setActiveTab] = useState("posts");
   const user = useSelector((store) => store.user);
   const profileImageVisibility = useSelector(
     (store) => store.state.imageVisibility
   );
   const dispatch = useDispatch();
+
+  const stats = [
+    { label: "Connections", value: "400" },
+    { label: "Posts", value: "10" },
+  ];
 
   if (!user) return;
 
@@ -17,101 +29,149 @@ const Profile = () => {
   };
 
   return (
-    <>
+    <div className="min-h-screen bg-[#09090b] text-zinc-100 font-sans selection:bg-cyan-500/30">
       <Activity mode={profileImageVisibility ? "visible" : "hidden"}>
         {/* 1. Backdrop: Deep dark overlay with blur for focus */}
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-8">
-          {/* Interactive background layer - clicks here close the modal */}
-          <div
-            className="absolute inset-0 bg-neutral-950/80 backdrop-blur-md transition-opacity"
-            onClick={handleImageVisibility}
-          />
-
-          {/* 2. Content Wrapper: constrained max-width/height */}
-          <div className="relative z-10 flex max-h-full max-w-5xl flex-col items-center justify-center">
-            {/* 3. The Close Button: Floating, translucent, accessible */}
-            {/* Placed absolute relative to the wrapper so it sticks to the image area */}
-            <button
-              onClick={handleImageVisibility}
-              className="group absolute -top-12 right-0 flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium text-white/70 transition-all hover:bg-white/10 hover:text-white md:top-4 md:right-4 md:bg-black/50 md:backdrop-blur-md"
-            >
-              <span className="hidden sm:block">Close</span>
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 group-hover:bg-white/20">
-                <i className="fa-solid fa-xmark text-lg"></i>
-              </div>
-            </button>
-
-            {/* 4. The Image: Rounded, shadow, preserves aspect ratio */}
-            {/* object-contain prevents cropping faces; max-h-[85vh] keeps it on screen */}
-            <img
-              src={user.profileImageUrl}
-              alt="Profile"
-              className="max-h-[80vh] w-auto max-w-full rounded-lg object-contain shadow-[0_0_40px_-10px_rgba(0,0,0,0.5)] ring-1 ring-white/10"
-            />
-          </div>
-        </div>
+        <ProfileImage
+          user={user}
+          handleImageVisibility={handleImageVisibility}
+        />
       </Activity>
-      <div className="min-h-dvh bg-emerald-50">
-        <div className="flex items-center my-4">
-          <div className="relative">
-            <img
-              src="https://images.unsplash.com/photo-1767153434535-89b4a3db366d?q=80&w=1171&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-              className="w-dvw h-30 md:h-50 rounded-md object-cover"
-            />
-          </div>
-          <div className="inline-block z-40 absolute max-sm:top-35 md:top-58">
-            <img
-              src={user.profileImageUrl}
-              onClick={handleImageVisibility}
-              className="max-sm:w-20 max-sm:h-20 h-30 w-30 rounded-full mx-2 object-cover cursor-pointer"
-            />
-          </div>
+      <div className="max-w-5xl mx-auto pb-20">
+        {/* --- Cover Image Area --- */}
+        <div className="relative w-full h-48 md:h-72 lg:h-80 group overflow-hidden md:rounded-b-3xl">
+          <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent z-10"></div>
+          <img
+            src="https://images.unsplash.com/photo-1767153434535-89b4a3db366d?q=80&w=1171&auto=format&fit=crop"
+            alt="Cover"
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          />
         </div>
-        <div className="flex items-center">
-          <div className="flex items-center mt-3 ml-2 md:mt-15 lg:mt-20 mr-2">
-            <i className="fa-brands fa-battle-net text-black inline-block"></i>
-            <h2 className="text-3xl text-black font-bold inline-block ml-2">
-              {user.firstName}
-            </h2>
-            {user.isVerified ? (
-              <i className="fa-brands fa-galactic-senate text-black"></i>
-            ) : (
-              ""
-            )}
-            <div className="ml-8">
-              <Link to="/profile/edit" title="Edit Profile">
-                <i className="fa-solid fa-pen-fancy text-black"></i>
+
+        {/* --- Profile Header Info --- */}
+        <div className="px-4 md:px-8">
+          <div className="relative flex flex-col md:flex-row items-start md:items-end -mt-16 md:-mt-20 mb-6 gap-6 z-20">
+            {/* Avatar with Ring */}
+            <div className="relative group shrink-0">
+              {/* Glowing effect behind avatar */}
+              <div className="absolute inset-0 bg-cyan-500 rounded-full blur-2xl opacity-0 group-hover:opacity-40 transition-opacity duration-500"></div>
+
+              <img
+                src={user.profileImageUrl}
+                onClick={handleImageVisibility}
+                alt={user.firstName}
+                className="relative h-32 w-32 md:h-40 md:w-40 rounded-full object-cover border-4 border-[#09090b] shadow-2xl cursor-zoom-in hover:brightness-110 transition-all"
+              />
+              <div className="absolute bottom-2 right-2 bg-green-500 w-5 h-5 border-4 border-[#09090b] rounded-full"></div>
+            </div>
+
+            {/* Name & Actions */}
+            <div className="flex-1 flex flex-col md:flex-row md:items-center justify-between w-full gap-4 mt-2 md:mt-0 md:mb-2">
+              <div>
+                <h1 className="text-3xl md:text-4xl font-bold text-white flex items-center gap-3">
+                  {user.firstName}
+                  {user.isVerified && (
+                    <ShieldCheck
+                      size={24}
+                      className="text-cyan-400"
+                      fill="currentColor"
+                      fillOpacity={0.2}
+                    />
+                  )}
+                </h1>
+                {/* Future Use */}
+                <p className="text-zinc-400 font-medium mt-1 flex items-center gap-2">
+                  <span className="text-zinc-500">@username</span> •
+                  <span className="text-zinc-400">Software Engineer</span>
+                </p>
+                {/* */}
+              </div>
+
+              {/* Edit Button */}
+              <Link
+                to="/profile/edit"
+                className="group flex items-center gap-2 px-5 py-2.5 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 hover:border-zinc-600 rounded-full transition-all active:scale-95"
+              >
+                <Edit3
+                  size={16}
+                  className="text-zinc-300 group-hover:text-white"
+                />
+                <span className="text-sm font-medium text-zinc-300 group-hover:text-white">
+                  Edit Profile
+                </span>
               </Link>
             </div>
           </div>
-        </div>
-        <div className="bg-linear-to-r from-violet-600 to-indigo-600 rounded-xl p-1 shadow-xl max-w-sm mx-2 mt-4 mb-2">
-          <div className="bg-white/10 backdrop-blur-sm rounded-lg py-6 text-white grid grid-cols-2 divide-x divide-white/20">
-            <div className="text-center px-4">
-              <h2 className="font-bold text-2xl drop-shadow-md">400</h2>
-              <p className="text-xs text-indigo-100 opacity-80 uppercase tracking-wider">
-                Connections
-              </p>
-            </div>
 
-            <div className="text-center px-4">
-              <h2 className="font-bold text-2xl drop-shadow-md">10</h2>
-              <p className="text-xs text-indigo-100 opacity-80 uppercase tracking-wider">
-                Posts
-              </p>
+          {/* --- Bio Section --- */}
+          <div className="max-w-2xl mb-10">
+            <p className="text-zinc-300 leading-relaxed text-sm md:text-base">
+              {user.about ||
+                "Digital explorer and coffee enthusiast. Creating things that live on the internet."}
+            </p>
+
+            {/* Future Use */}
+            <div className="flex items-center gap-4 mt-4 text-xs font-medium text-zinc-500 uppercase tracking-wider">
+              <div className="flex items-center gap-1">
+                <MapPin size={14} />
+                <span>New Delhi, India</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="w-1 h-1 rounded-full bg-zinc-500"></div>
+                <span>Joined March 2024</span>
+              </div>
+            </div>
+            {/* */}
+          </div>
+
+          <div className="w-full border-y border-zinc-800 py-6 mb-8">
+            <div className="grid grid-cols-2 divide-x divide-zinc-800">
+              {stats.map((stat) => (
+                <div
+                  key={stat.label}
+                  className={`text-center md:text-left px-4 md:px-6 first:pl-0`}
+                >
+                  <div className="text-2xl font-bold text-white">
+                    {stat.value}
+                  </div>
+                  <div className="text-xs text-zinc-500 uppercase tracking-widest mt-1">
+                    {stat.label}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
-        <div className="text-black">
-          <div className="mt-4">
-            <h2 className="p-2 text-2xl font-bold bg-gray-300 inline-block rounded-xl mx-4">
-              Posts
-            </h2>
-            <div>{/* posts*/}</div>
+
+          <div className="flex items-center gap-8 border-b border-zinc-800 mb-8">
+            <button
+              onClick={() => setActiveTab("posts")}
+              className={`flex items-center gap-2 pb-4 border-b-2 font-medium cursor-pointer transition-colors ${
+                activeTab === "posts"
+                  ? "border-cyan-500 text-cyan-400"
+                  : "border-transparent text-zinc-500 hover:text-zinc-300"
+              }`}
+            >
+              <Grid size={18} />
+              <span>Posts</span>
+            </button>
+            <button
+              onClick={() => setActiveTab("network")}
+              className={`flex items-center gap-2 pb-4 border-b-2 font-medium cursor-pointer transition-colors ${
+                activeTab === "network"
+                  ? "border-cyan-500 text-cyan-400"
+                  : "border-transparent text-zinc-500 hover:text-zinc-300"
+              }`}
+            >
+              <Users size={18} />
+              <span>Network</span>
+            </button>
+          </div>
+          <div className="min-h-75">
+            {activeTab === "posts" ? <UserPosts /> : <UserNetwork />}
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

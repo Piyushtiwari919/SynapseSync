@@ -1,4 +1,4 @@
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import NavBar from "./Navbar.jsx";
 import Footer from "./Footer.jsx";
 import axios from "axios";
@@ -9,7 +9,9 @@ import { addUser } from "../../store/userSlice.js";
 const Layout = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const userData = useSelector((store) => store.user);
+
   const fetchUser = async () => {
     try {
       const res = await axios.get(
@@ -17,11 +19,9 @@ const Layout = () => {
         { withCredentials: true }
       );
       dispatch(addUser(res?.data));
-      navigate("/feed");
-      // console.log(res);
     } catch (error) {
-      if (error.status === 401) {
-        // navigate("/");
+      if (error.response?.status === 401) {
+        navigate("/login");
       }
       console.error(error);
     }
@@ -32,12 +32,33 @@ const Layout = () => {
       fetchUser();
     }
   }, []);
+
+  useEffect(() => {
+    // Logic: If user IS logged in AND they are sitting on the home page "/"
+    // Then: Bounce them to "/feed" immediately.
+    if (userData && location.pathname === "/") {
+      navigate("/feed");
+    }
+
+    // Also: If user is logged in, don't let them see "/login"
+    if (userData && location.pathname === "/login") {
+      navigate("/feed");
+    }
+  }, [userData, location.pathname, navigate]);
   return (
-    <>
+    <div
+      className={`flex flex-col min-h-screen ${
+        userData ? "pb-16 md:pb-0" : ""
+      }`}
+    >
       <NavBar />
-      <Outlet />
+
+      <div className="grow w-full">
+        <Outlet />
+      </div>
+
       <Footer />
-    </>
+    </div>
   );
 };
 

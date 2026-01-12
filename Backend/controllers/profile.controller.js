@@ -21,7 +21,7 @@ const handleProfileVisit = async (req,res) => {
     const userId = req.params.userId;
     const user = await User.find({ _id: userId });
     const sanatizedUser = getSanatizedUser(user);
-    console.log(user);
+    //console.log(user);
     return res.status(200).send(sanatizedUser);
   } catch (error) {
     return res.status(400).send(`ERROR: ${error.message}`);

@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
-    <footer className="footer sm:footer-horizontal bg-success-content text-neutral-content py-4 px-8 flex fixed bottom-0 justify-between items-center">
+    <footer className="footer sm:footer-horizontal bg-success-content text-neutral-content py-4 px-8 flex justify-between items-center w-full">
       <aside>
         <Link to="/">
           {/* <img src="/SS-logo.png" className="h-12 m-0 p-0" /> */}

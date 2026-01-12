@@ -39,8 +39,8 @@ const Explore = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-dvh flex flex-col items-center justify-center gap-4">
-        <div className="w-10 h-10 border-4 border-cyan-600 border-t-transparent rounded-full animate-spin"></div>
+      <div className="flex flex-col items-center justify-center gap-4">
+        <div className="w-10 h-10 border-4 border-cyan-600 border-t-transparent rounded-full animate-spin max-md:mt-23 mt-18"></div>
         <p className="text-gray-400 text-sm font-medium animate-pulse">
           Finding people...
         </p>
