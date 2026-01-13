@@ -3,12 +3,21 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { addUser } from "../../store/userSlice.js";
-import { Mail, Lock, AlertCircle, ArrowLeft, Loader2 } from "lucide-react"; // Added icons for UX
+import {
+  Mail,
+  Lock,
+  AlertCircle,
+  ArrowLeft,
+  Loader2,
+  Eye,
+  EyeOff,
+} from "lucide-react"; // Added icons for UX
 
 const Login = () => {
   // --- 1. PRESERVED LOGIC (Do not touch) ---
   const [emailId, setEmailId] = useState("");
   const [password, setPassword] = useState("");
+  const [isVisible, setIsVisible] = useState(false);
   const [toast, setToast] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -19,6 +28,11 @@ const Login = () => {
   };
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
+  };
+
+  const handlePasswordVisibility = (e) => {
+    e.preventDefault();
+    setIsVisible(!isVisible);
   };
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -117,7 +131,7 @@ const Login = () => {
                 />
               </div>
               <input
-                type="password"
+                type={isVisible ? "text" : "password"}
                 id="password-input"
                 className="w-full bg-[#09090b] border border-zinc-800 text-white text-sm rounded-xl focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500 block pl-10 p-3 placeholder:text-zinc-600 transition-all outline-none"
                 placeholder="••••••••"
@@ -125,6 +139,13 @@ const Login = () => {
                 onChange={handlePasswordChange}
                 required
               />
+              <button
+                type="button"
+                onClick={handlePasswordVisibility}
+                className="absolute right-3 top-3.5 text-zinc-500 hover:text-white transition-colors cursor-pointer"
+              >
+                {isVisible ? <Eye size={18} /> : <EyeOff size={18} />}
+              </button>
             </div>
           </div>
           {error && (
