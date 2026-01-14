@@ -66,9 +66,6 @@ const NavBar = () => {
 
   return (
     <>
-      {/* ==================================================================
-          1. TOP NAVBAR (Desktop: Full Nav | Mobile: Logo & Profile only)
-      ================================================================== */}
       <div className="sticky top-0 z-50 w-full bg-[#09090b]/80 backdrop-blur-md border-b border-zinc-800">
         <div className="navbar max-w-7xl mx-auto px-4 h-16">
           {/* --- LEFT: LOGO --- */}
@@ -149,11 +146,17 @@ const NavBar = () => {
                   </li>
                 </ul>
               </div>
-            ) : (
-              // Login Button (Logged Out State)
+            ) : location.pathname === "/register" ||
+              location.pathname === "/" ? (
               <Link to="/login">
-                <button className="btn bg-cyan-500 hover:bg-cyan-600 text-black border-none font-bold min-h-9 h-9 px-6 rounded-full">
+                <button className="btn bg-cyan-600 hover:bg-cyan-700 text-white border-none font-bold min-h-9 h-9 px-6 rounded-full">
                   Login
+                </button>
+              </Link>
+            ) : (
+              <Link to="/register">
+                <button className="btn bg-cyan-600 hover:bg-cyan-700 text-white border-none font-bold min-h-9 h-9 px-6 rounded-full">
+                  Signup
                 </button>
               </Link>
             )}
@@ -161,9 +164,7 @@ const NavBar = () => {
         </div>
       </div>
 
-      {/* ==================================================================
-          2. BOTTOM NAVIGATION BAR (Mobile Only)
-      ================================================================== */}
+      {/* BOTTOM NAVIGATION BAR (Mobile Only) */}
       {user && (
         <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#09090b]/95 backdrop-blur-lg border-t border-zinc-800 pb-safe-area-inset-bottom">
           <div className="flex justify-around items-center h-16 px-2">

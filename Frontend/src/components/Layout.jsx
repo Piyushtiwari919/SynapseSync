@@ -40,6 +40,10 @@ const Layout = () => {
       navigate("/feed");
     }
 
+    if (userData && location.pathname === "/register") {
+      navigate("/feed");
+    }
+
     // Also: If user is logged in, don't let them see "/login"
     if (userData && location.pathname === "/login") {
       navigate("/feed");
