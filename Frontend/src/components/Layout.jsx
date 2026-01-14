@@ -5,12 +5,14 @@ import axios from "axios";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addUser } from "../../store/userSlice.js";
+import { addConnections } from "../../store/connectionSlice.js";
 
 const Layout = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const userData = useSelector((store) => store.user);
+  const connectedUsers = useSelector((store) => store.connections);
 
   const fetchUser = async () => {
     try {
@@ -27,9 +29,24 @@ const Layout = () => {
     }
   };
 
+  const getConnections = async () => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/user/connections`,
+        { withCredentials: true }
+      );
+      dispatch(addConnections(response?.data));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     if (!userData) {
       fetchUser();
+    }
+    if (!connectedUsers) {
+      getConnections();
     }
   }, []);
 
