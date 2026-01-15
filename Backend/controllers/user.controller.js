@@ -100,7 +100,7 @@ const getFeed = async (req, res) => {
       })
         .skip(skip)
         .limit(limit - allPosts.length)
-        .populate("userd", "firstName lastName profileImageUrl")
+        .populate("userId", "firstName lastName profileImageUrl")
         .lean();
     }
 

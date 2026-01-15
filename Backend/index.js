@@ -9,6 +9,7 @@ import userRouter from "./routes/user.route.js";
 import connectDB from "./config/connectDB.js";
 import requestRouter from "./routes/request.route.js";
 import exploreRouter from "./routes/explore.route.js";
+import postRouter from "./routes/post.route.js";
 
 const corsOptions = {
   origin: "http://localhost:5173",
@@ -25,7 +26,8 @@ app.use("/", authRouter);
 app.use("/", profileRouter);
 app.use("/", userRouter);
 app.use("/", requestRouter);
-app.use("/",exploreRouter);
+app.use("/", exploreRouter);
+app.use("/", postRouter);
 
 const PORT = process.env.PORT || 5000;
 
