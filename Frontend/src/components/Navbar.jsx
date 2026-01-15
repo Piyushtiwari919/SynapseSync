@@ -3,6 +3,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { removeUser } from "../../store/userSlice.js";
 import { LogOut, User, Users, Bell, Home, PlusSquare } from "lucide-react";
+import { removeConnection } from "../../store/connectionSlice.js";
+import { removeFeed } from "../../store/feedSlice.js";
+import { removeFeedUsers } from "../../store/exploreSlice.js";
 
 const NavBar = () => {
   const dispatch = useDispatch();
@@ -26,6 +29,9 @@ const NavBar = () => {
         { withCredentials: true }
       );
       dispatch(removeUser());
+      dispatch(removeConnection());
+      dispatch(removeFeed());
+      dispatch(removeFeedUsers());
       navigate("/");
     } catch (error) {
       console.error(error);
