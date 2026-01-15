@@ -4,7 +4,8 @@ import feedReducer from "./feedSlice.js";
 import stateReducer from "./stateSlice.js";
 import connectionReducer from "./connectionSlice.js";
 import requestReducer from "./requestSlice.js";
-import exploreReducer from "./exploreSlice.js"
+import exploreReducer from "./exploreSlice.js";
+import postReducer from "./postSlice.js";
 
 const appStore = configureStore({
   reducer: {
@@ -13,7 +14,8 @@ const appStore = configureStore({
     state: stateReducer,
     connections: connectionReducer,
     requests: requestReducer,
-    explore:exploreReducer,
+    explore: exploreReducer,
+    posts: postReducer,
   },
 });
 
