@@ -1,5 +1,5 @@
 import OTP from "../models/otp.model.js";
-import User from "../models/user.model.js"; // Assuming you have a User model
+import User from "../models/user.model.js";
 import nodemailer from "nodemailer";
 import crypto from "crypto";
 import bcrypt from "bcrypt";
