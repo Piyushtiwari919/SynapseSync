@@ -12,21 +12,34 @@ import ProfileImage from "./ProfileImage.jsx";
 const Profile = () => {
   const [activeTab, setActiveTab] = useState("posts");
   const user = useSelector((store) => store.user);
+  const posts = useSelector((store) => store.posts);
   const profileImageVisibility = useSelector(
     (store) => store.state.imageVisibility
   );
+
+  const userConnections = useSelector((store) => store.connections);
+
   const dispatch = useDispatch();
 
   const stats = [
-    { label: "Connections", value: "400" },
-    { label: "Posts", value: "10" },
+    { label: "Connections", value: userConnections?.length },
+    { label: "Posts", value: posts?.length },
   ];
-
-  if (!user) return;
 
   const handleImageVisibility = () => {
     dispatch(toggleImageVisibility());
   };
+  
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-[#09090b] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4 animate-pulse">
+          <div className="w-20 h-20 bg-zinc-800 rounded-full"></div>
+          <div className="w-32 h-4 bg-zinc-800 rounded"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#09090b] text-zinc-100 font-sans selection:bg-cyan-500/30">
@@ -81,8 +94,10 @@ const Profile = () => {
                 </h1>
                 {/* Future Use */}
                 <p className="text-zinc-400 font-medium mt-1 flex items-center gap-2">
-                  <span className="text-zinc-500">@username</span> •
-                  <span className="text-zinc-400">Software Engineer</span>
+                  <span className="text-zinc-500">
+                    @{user?.firstName?.toLowerCase()}
+                  </span>{" "}
+                  •<span className="text-zinc-400">Software Engineer</span>
                 </p>
                 {/* */}
               </div>
@@ -167,7 +182,11 @@ const Profile = () => {
             </button>
           </div>
           <div className="min-h-75">
-            {activeTab === "posts" ? <UserPosts /> : <UserNetwork />}
+            {activeTab === "posts" ? (
+              <UserPosts userId={user?._id} isLoggedInUser={true} />
+            ) : (
+              <UserNetwork connections={userConnections} />
+            )}
           </div>
         </div>
       </div>

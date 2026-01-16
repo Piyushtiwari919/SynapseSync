@@ -30,3 +30,5 @@ public/tmp
 Project.md
 .Project.md
 ./Project.md
+
+controller/email.code.controller.js
