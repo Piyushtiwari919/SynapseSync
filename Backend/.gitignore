@@ -31,4 +31,5 @@ Project.md
 .Project.md
 ./Project.md
 
-controller/email.code.controller.js
+controllers/email.code.controller.js
+./controllers/email.code.controller.js
