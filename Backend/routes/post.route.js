@@ -9,7 +9,7 @@ import { upload } from "../middlewares/multer.js";
 
 const postRouter = Router();
 
-postRouter.get("/post/:userId",userAuth, getUserPosts);
+postRouter.get("/post/:userId",userAuth,requireVerification, getUserPosts);
 
 postRouter.post(
   "/post/create",
