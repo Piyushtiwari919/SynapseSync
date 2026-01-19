@@ -63,7 +63,15 @@ updatePostContoller.like = async (req, res) => {
     const loggedInUser = req.user;
     const { postId } = req.body;
 
-    console.log(postId, loggedInUser);
+    // console.log(postId, loggedInUser);
+    const isAlreadyLiked = await Post.exists({
+      _id: postId,
+      "likes.userId": loggedInUser._id,
+    });
+
+    if (isAlreadyLiked) {
+      return res.status(200).send("You Liked the post");
+    }
     const updatedPost = await Post.findByIdAndUpdate(
       postId,
       {
@@ -72,7 +80,7 @@ updatePostContoller.like = async (req, res) => {
       { new: true, runValidators: true }
     );
 
-    console.log(updatedPost);
+    // console.log(updatedPost);
 
     if (!updatedPost) {
       throw new Error("Post not found");
