@@ -1,12 +1,11 @@
 import axios from "axios";
 import { useState, useRef } from "react";
 import { Image as ImageIcon, X, Send, Loader2, Smile } from "lucide-react";
-import { useSelector } from "react-redux"; // Assuming you have user in redux for the avatar
+import { useSelector } from "react-redux";
 
 const CreatePost = () => {
-  // --- 1. HOOKS & STATE ---
-  const user = useSelector((store) => store.user); // To show current user avatar
-  const fileInputRef = useRef(null); // Reference to hidden file input
+  const user = useSelector((store) => store.user); 
+  const fileInputRef = useRef(null); 
 
   const [description, setDescription] = useState("");
   const [postImage, setPostImage] = useState(null);
@@ -14,9 +13,7 @@ const CreatePost = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [toast, setToast] = useState(false);
-  const [success, setSuccess] = useState(false); // Track success specifically
-
-  // --- 2. HANDLERS ---
+  const [success, setSuccess] = useState(false); 
 
   const handleImage = (e) => {
     const postImageFile = e.target.files[0];
@@ -34,14 +31,12 @@ const CreatePost = () => {
 
   const handleInputChange = (e) => {
     setDescription(e.target?.value);
-    // Clear errors as user types
     if (error) setError("");
   };
 
   const handlePost = async (e) => {
     e.preventDefault();
 
-    // VALIDATION LOGIC
     if (!description.trim()) {
       setError("Please write something before posting.");
       setToast(true);
@@ -66,12 +61,10 @@ const CreatePost = () => {
         }
       );
 
-      // Success Handling
       setSuccess(true);
       setError("Post created successfully!");
       setToast(true);
 
-      // Reset Form
       setDescription("");
       removeImage();
 
@@ -104,6 +97,10 @@ const CreatePost = () => {
     </div>;
   }
 
+  if (!user?.isVerified) {
+    navigate("/verify/email");
+  }
+
   return (
     <div className="min-h-screen bg-[#09090b] text-zinc-100 flex items-center justify-center p-4">
       {/* Toast Notification (Floating) */}
@@ -133,9 +130,7 @@ const CreatePost = () => {
 
         <div className="p-4 md:p-6">
           <form className="space-y-4">
-            {/* User & Text Area */}
             <div className="flex gap-4">
-              {/* User Avatar */}
               <div className="shrink-0">
                 <img
                   src={user?.profileImageUrl || "https://placehold.co/100"}
@@ -144,7 +139,6 @@ const CreatePost = () => {
                 />
               </div>
 
-              {/* Input Field */}
               <div className="flex-1">
                 <textarea
                   value={description}
@@ -155,7 +149,6 @@ const CreatePost = () => {
               </div>
             </div>
 
-            {/* Image Preview Area */}
             {preview ? (
               <div className="relative rounded-xl overflow-hidden border border-zinc-700 bg-black group">
                 <img
@@ -173,9 +166,7 @@ const CreatePost = () => {
               </div>
             ) : null}
 
-            {/* Toolbar & Actions */}
             <div className="flex items-center justify-between pt-4 border-t border-zinc-800 mt-4">
-              {/* Media Tools */}
               <div className="flex items-center gap-2">
                 <button
                   type="button"
@@ -196,8 +187,6 @@ const CreatePost = () => {
                   className="hidden"
                 />
 
-                {/* Visual filler buttons (Emoji, etc) */}
-                {/* Future Use */}
                 <button
                   type="button"
                   className="p-2 text-zinc-400 hover:bg-zinc-800 rounded-full transition-colors"

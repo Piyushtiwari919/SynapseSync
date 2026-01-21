@@ -2,7 +2,14 @@ import axios from "axios";
 import { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { Plus, Compass, TrendingUp } from "lucide-react";
+import {
+  Plus,
+  Compass,
+  TrendingUp,
+  CheckCircle2,
+  Mail,
+  ArrowRight,
+} from "lucide-react";
 
 // Components
 import FeedCard from "./FeedCard.jsx";
@@ -13,7 +20,6 @@ import { addFeed } from "../../store/feedSlice.js";
 const Feed = () => {
   const [isLoading, setIsLoading] = useState(true);
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   // Redux Data
   const user = useSelector((store) => store.user);
@@ -76,6 +82,13 @@ const Feed = () => {
                 </button>
               </Link>
             )}
+            {!user?.isVerified && (
+              <Link className="cursor-pointer" to="/verify/email" title="post">
+                <button className="w-10 h-10 rounded-full bg-cyan-500 text-black flex items-center justify-center hover:scale-110 transition-transform shadow-lg shadow-cyan-500/20 hover:cursor-pointer">
+                  <Plus size={24} />
+                </button>
+              </Link>
+            )}
             <div className="w-8 h-px bg-white/10"></div>
             <Link
               className="hover:cursor-pointer"
@@ -93,10 +106,42 @@ const Feed = () => {
         </div>
         <div className="w-full max-w-3xl px-4 pt-8 relative z-10">
           {user && !user.isVerified && (
-            <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4 mb-8 text-center text-yellow-500">
-              Please verify your email to post.
+            <div className="mb-10 bg-[#121214] border border-zinc-800 rounded-2xl p-4 shadow-sm relative overflow-hidden">
+              <div className="flex gap-4 items-center">
+                <div className="shrink-0 opacity-50 grayscale">
+                  <img
+                    src={user?.profileImageUrl || "https://placehold.co/100"}
+                    alt="Me"
+                    className="w-10 h-10 rounded-full object-cover ring-2 ring-zinc-800"
+                  />
+                </div>
+
+                <div className="flex-1 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex flex-col justify-center h-10">
+                    <p className="text-zinc-500 text-sm font-medium">
+                      Verify your email to start sharing your thoughts...
+                    </p>
+                  </div>
+
+                  <Link
+                    to="/verify/email"
+                    className="group shrink-0 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 hover:text-white border border-zinc-700 hover:border-zinc-600 px-5 py-2 rounded-full text-sm font-semibold transition-all flex items-center justify-center gap-2"
+                  >
+                    <Mail
+                      size={16}
+                      className="text-cyan-500 group-hover:scale-110 transition-transform"
+                    />
+                    <span>Verify Account</span>
+                  </Link>
+                </div>
+              </div>
+
+              <div className="absolute bottom-0 left-0 w-full h-0.5 bg-zinc-800">
+                <div className="w-1/3 h-full bg-cyan-500/50 shadow-[0_0_10px_rgba(6,182,212,0.5)]"></div>
+              </div>
             </div>
           )}
+
           {user?.isVerified && (
             <div className="mb-12 transform hover:scale-[1.01] transition-transform duration-300">
               <CreatePostWidget onPostCreated={getFeed} />
@@ -104,16 +149,16 @@ const Feed = () => {
           )}
           <div className="space-y-12">
             <div>
-              {feedForUser.length < 50 ? (
+              {feedForUser?.length < 50 ? (
                 <>
-                  {feedForUser.map((feed) => (
+                  {feedForUser?.map((feed) => (
                     <FeedCard
                       feed={feed}
                       key={feed._id}
                       isProfilePost={false}
                     />
                   ))}
-                  {moreFeed.map((feed) => (
+                  {moreFeed?.map((feed) => (
                     <FeedCard
                       feed={feed}
                       key={feed._id}
@@ -122,7 +167,7 @@ const Feed = () => {
                   ))}
                 </>
               ) : (
-                feedForUser.map((feed) => (
+                feedForUser?.map((feed) => (
                   <FeedCard feed={feed} key={feed._id} isProfilePost={false} />
                 ))
               )}

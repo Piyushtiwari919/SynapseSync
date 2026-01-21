@@ -203,15 +203,27 @@ const NavBar = () => {
             </Link>
 
             {/* Middle Action Button (Create Post) */}
-            <Link
-              to="/post/create"
-              title="post"
-              className="text-cyan-400 hover:text-cyan-300 transition-colors -mt-5"
-            >
-              <div className="bg-zinc-800 p-3 rounded-full border border-zinc-700 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
-                <PlusSquare size={24} />
-              </div>
-            </Link>
+            {user?.isVerified ? (
+              <Link
+                to="/post/create"
+                title="post"
+                className="text-cyan-400 hover:text-cyan-300 transition-colors -mt-5"
+              >
+                <div className="bg-zinc-800 p-3 rounded-full border border-zinc-700 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+                  <PlusSquare size={24} />
+                </div>
+              </Link>
+            ) : (
+              <Link
+                to="/verify/email"
+                title="post"
+                className="text-cyan-400 hover:text-cyan-300 transition-colors -mt-5"
+              >
+                <div className="bg-zinc-800 p-3 rounded-full border border-zinc-700 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+                  <PlusSquare size={24} />
+                </div>
+              </Link>
+            )}
 
             <Link
               to="/requests"

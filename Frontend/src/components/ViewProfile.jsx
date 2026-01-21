@@ -3,23 +3,97 @@ import {
   addProfileView,
   toggleImageVisibility,
 } from "../../store/stateSlice.js";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Activity, useEffect, useState } from "react";
-import axios from "axios";
 import useProfileView from "../hooks/useProfileView.jsx";
+import UserPosts from "./UserPosts.jsx"; // Ensure this path is correct
+import {
+  MapPin,
+  Calendar,
+  ShieldCheck,
+  UserPlus,
+  MessageCircle,
+  UserRoundCheck,
+  X,
+  Link as LinkIcon,
+} from "lucide-react";
+import { removeRequest } from "../../store/requestSlice.js";
+import axios from "axios";
 
 const ViewProfile = () => {
   const dispatch = useDispatch();
+  const [toast, setToast] = useState(false);
+  const [toastMessage, setToastMesssage] = useState("");
   const [error, setError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const { userId } = useParams();
+  const navigate = useNavigate();
+
   const profileImageVisibility = useSelector(
     (store) => store.state.imageVisibility
   );
+
+  const loggedInUser = useSelector((store) => store.user);
+
+  useEffect(() => {
+    if (userId === loggedInUser?._id) {
+      navigate("/profile");
+    }
+  }, []);
+
+  const connectedUsers = useSelector((store) => store.connections);
+  const requestRecieved = useSelector((store) => store.requests);
+  // console.log(requestRecieved);
+
   const handleImageVisibility = () => {
     dispatch(toggleImageVisibility());
   };
+
   const user = useSelector((store) => store.state?.visitedProfileValue?.[0]);
+
+  const posts = useSelector((store) => store.posts);
+
+  const isAlreadyConnected = connectedUsers?.some(
+    (connection) => connection?._id === user?._id
+  );
+
+  {
+    /** Left */
+  }
+  // const isAlreadyRequestSend = requestSend?.some((request)=> request._id === user._id);
+
+  const isRequestRecieved = requestRecieved?.some(
+    (request) => request?.fromUserId?._id === user._id
+  );
+
+  const handleConnectionAccept = async () => {
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/request/review/accepted/${
+          user?._id
+        }`,
+        {},
+        { withCredentials: true }
+      );
+
+      dispatch(removeRequest(_id));
+      setToastMesssage("Connection accepted Successfull");
+      setToast(true);
+
+      setTimeout(() => {
+        setToast(false);
+      }, 3000);
+    } catch (error) {
+      setToastMesssage("Something Went Wrong");
+      setToast(true);
+
+      setTimeout(() => {
+        setToast(false);
+      }, 3000);
+      console.error(error);
+    }
+  };
+
   const getProfile = async () => {
     try {
       const response = await useProfileView(userId);
@@ -34,112 +108,189 @@ const ViewProfile = () => {
       setIsLoading(false);
     }
   };
+
   useEffect(() => {
     getProfile();
   }, []);
-  if (error) {
-    return (
-      <div>
-        <h2>Something went wrong</h2>
-      </div>
-    );
-  }
 
+  // --- 2. LOADING STATE (SKELETON) ---
   if (isLoading) {
     return (
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="h-20 w-full bg-gray-800 rounded-full mb-8 mx-auto md:mx-0 animate-pulse"></div>
-        <div className="h-10 w-48 bg-gray-800 rounded-full mb-8 mx-auto md:mx-0 animate-pulse"></div>
+      <div className="min-h-screen bg-[#09090b] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4 animate-pulse">
+          <div className="w-20 h-20 bg-zinc-800 rounded-full"></div>
+          <div className="w-32 h-4 bg-zinc-800 rounded"></div>
+        </div>
       </div>
     );
   }
+
+  if (error)
+    return (
+      <div className="text-center py-20 text-white">Profile not found.</div>
+    );
   return (
     <>
+      {toast && (
+        <div className="sm:mt-10 toast toast-top toast-center">
+          <div className="alert alert-success">
+            <span>{toastMessage}</span>
+          </div>
+        </div>
+      )}
       <Activity mode={profileImageVisibility ? "visible" : "hidden"}>
-        {/* 1. Backdrop: Deep dark overlay with blur for focus */}
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-8">
-          {/* Interactive background layer - clicks here close the modal */}
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
           <div
-            className="absolute inset-0 bg-neutral-950/80 backdrop-blur-md transition-opacity"
+            className="absolute inset-0 bg-black/90 backdrop-blur-xl transition-opacity"
             onClick={handleImageVisibility}
           />
-
-          {/* 2. Content Wrapper: constrained max-width/height */}
-          <div className="relative z-10 flex max-h-full max-w-5xl flex-col items-center justify-center">
-            {/* 3. The Close Button: Floating, translucent, accessible */}
-            {/* Placed absolute relative to the wrapper so it sticks to the image area */}
+          <div className="relative z-10 animate-in zoom-in-95 duration-300">
             <button
               onClick={handleImageVisibility}
-              className="group absolute -top-12 right-0 flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium text-white/70 transition-all hover:bg-white/10 hover:text-white md:top-4 md:right-4 md:bg-black/50 md:backdrop-blur-md"
+              className="absolute -top-12 right-0 md:-right-12 text-white/70 hover:text-white transition-colors"
             >
-              <span className="hidden sm:block">Close</span>
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 group-hover:bg-white/20">
-                <i className="fa-solid fa-xmark text-lg"></i>
-              </div>
+              <X size={32} />
             </button>
-
-            {/* 4. The Image: Rounded, shadow, preserves aspect ratio */}
-            {/* object-contain prevents cropping faces; max-h-[85vh] keeps it on screen */}
             <img
               src={user?.profileImageUrl}
-              alt="Profile"
-              className="max-h-[80vh] w-auto max-w-full rounded-lg object-contain shadow-[0_0_40px_-10px_rgba(0,0,0,0.5)] ring-1 ring-white/10"
+              alt="Profile Fullscreen"
+              className="max-h-[85vh] w-auto max-w-full rounded-lg shadow-2xl ring-1 ring-white/10"
             />
           </div>
         </div>
       </Activity>
-      <div className="min-h-dvh bg-emerald-50">
-        <div className="flex items-center my-4">
-          <div className="relative">
-            <img
-              src="https://images.unsplash.com/photo-1767153434535-89b4a3db366d?q=80&w=1171&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-              className="w-dvw h-30 md:h-50 rounded-md object-cover"
-            />
-          </div>
-          <div className="inline-block z-40 absolute max-sm:top-35 md:top-58">
-            <img
-              src={user?.profileImageUrl}
-              onClick={handleImageVisibility}
-              className="max-sm:w-20 max-sm:h-20 h-30 w-30 rounded-full mx-2 object-cover cursor-pointer"
-            />
-          </div>
-        </div>
-        <div className="flex items-center">
-          <div className="flex items-center mt-3 ml-2 md:mt-15 lg:mt-20 mr-2">
-            <i className="fa-brands fa-battle-net text-black inline-block"></i>
-            <h2 className="text-3xl text-black font-bold inline-block ml-2">
-              {user?.firstName}
-            </h2>
-            {user?.isVerified ? (
-              <i className="fa-brands fa-galactic-senate text-black"></i>
-            ) : (
-              ""
-            )}
-          </div>
-        </div>
-        <div className="bg-linear-to-r from-violet-600 to-indigo-600 rounded-xl p-1 shadow-xl max-w-sm mx-2 mt-4 mb-2">
-          <div className="bg-white/10 backdrop-blur-sm rounded-lg py-6 text-white grid grid-cols-2 divide-x divide-white/20">
-            <div className="text-center px-4">
-              <h2 className="font-bold text-2xl drop-shadow-md">400</h2>
-              <p className="text-xs text-indigo-100 opacity-80 uppercase tracking-wider">
-                Connections
-              </p>
-            </div>
 
-            <div className="text-center px-4">
-              <h2 className="font-bold text-2xl drop-shadow-md">10</h2>
-              <p className="text-xs text-indigo-100 opacity-80 uppercase tracking-wider">
-                Posts
-              </p>
+      {/* --- MAIN PAGE --- */}
+      <div className="min-h-screen bg-[#09090b] text-zinc-100 font-sans pb-20 overflow-x-hidden relative">
+        <div className="fixed top-0 left-0 w-full h-full pointer-events-none">
+          <div className="absolute top-[-10%] right-[-5%] w-125 h-125 bg-purple-900/20 rounded-full blur-[120px] opacity-50"></div>
+          <div className="absolute bottom-[-10%] left-[-10%] w-125 h-125 bg-cyan-900/20 rounded-full blur-[120px] opacity-50"></div>
+        </div>
+
+        <div className="relative w-full h-87.5 lg:h-100 group">
+          <div className="absolute inset-0 bg-linear-to-b from-transparent via-[#09090b]/20 to-[#09090b] z-10"></div>
+          <img
+            src="https://images.unsplash.com/photo-1767153434535-89b4a3db366d?q=80&w=1171&auto=format&fit=crop"
+            alt="Cover"
+            className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-105"
+          />
+        </div>
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 relative z-20 -mt-32">
+          <div className="bg-[#121214]/80 backdrop-blur-xl border border-white/5 rounded-3xl p-6 md:p-8 shadow-2xl">
+            <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-start">
+              <div className="relative shrink-0 -mt-16 md:-mt-20 mx-auto md:mx-0">
+                <div className="group relative">
+                  <div className="absolute inset-0 bg-linear-to-tr from-cyan-500 to-purple-500 rounded-full blur-lg opacity-40 group-hover:opacity-60 transition-opacity"></div>
+                  <img
+                    src={user?.profileImageUrl}
+                    onClick={handleImageVisibility}
+                    className="relative w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-[6px] border-[#121214] shadow-xl cursor-pointer transition-transform hover:scale-[1.02]"
+                    alt="User"
+                  />
+                  {user?.isVerified && (
+                    <div
+                      className="absolute bottom-1 right-1 bg-black text-cyan-400 p-1.5 rounded-full border-4 border-[#121214]"
+                      title="Verified Human"
+                    >
+                      <ShieldCheck
+                        size={18}
+                        fill="currentColor"
+                        fillOpacity={0.2}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="flex-1 w-full text-center md:text-left">
+                <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                  <div>
+                    <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-1">
+                      {user?.firstName} {user?.lastName}
+                    </h1>
+                    <p className="text-zinc-400 font-medium flex items-center justify-center md:justify-start gap-2 text-sm">
+                      <span>@{user?.firstName?.toLowerCase()}</span>
+                      <span className="w-1 h-1 rounded-full bg-zinc-600"></span>
+                      <span className="text-zinc-500">
+                        {user?.role || "Member"}
+                      </span>
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-center gap-3 mt-2">
+                    {!isAlreadyConnected && !isRequestRecieved ? (
+                      <button className="flex items-center gap-2 px-6 py-2.5 bg-white text-black font-bold rounded-full hover:bg-zinc-200 transition-all shadow-[0_0_20px_rgba(255,255,255,0.15)] hover:shadow-[0_0_25px_rgba(255,255,255,0.3)] active:scale-95 hover:cursor-pointer">
+                        <UserPlus size={18} />
+                        <span>Connect</span>
+                      </button>
+                    ) : (
+                      ""
+                    )}
+                    {isRequestRecieved ? (
+                      <button
+                        onClick={handleConnectionAccept}
+                        className="flex items-center gap-2 px-6 py-2.5 bg-white text-black font-bold rounded-full hover:bg-zinc-200 transition-all shadow-[0_0_20px_rgba(255,255,255,0.15)] hover:shadow-[0_0_25px_rgba(255,255,255,0.3)] active:scale-95 hover:cursor-pointer"
+                      >
+                        <UserRoundCheck size={18} />
+                        <span>Accept</span>
+                      </button>
+                    ) : (
+                      ""
+                    )}
+                    <button className="p-2.5 rounded-full bg-zinc-800 hover:bg-zinc-700 text-white transition-colors border border-zinc-700">
+                      <MessageCircle size={18} />
+                    </button>
+                  </div>
+                </div>
+                <div className="mt-6 max-w-2xl">
+                  <p className="text-zinc-300 leading-relaxed text-sm md:text-base">
+                    {user?.about ||
+                      "👋 Hey there! I'm new to Synapse. Looking forward to connecting with amazing people."}
+                  </p>
+
+                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 mt-4 pt-4 border-t border-white/5">
+                    {user?.location && (
+                      <div className="flex items-center gap-1.5 text-xs font-medium text-zinc-500 uppercase tracking-wide">
+                        <MapPin size={14} className="text-cyan-500" />{" "}
+                        {user.location}
+                      </div>
+                    )}
+                    <div className="flex items-center gap-1.5 text-xs font-medium text-zinc-500 uppercase tracking-wide">
+                      <Calendar size={14} className="text-purple-500" /> Joined
+                      recently
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 max-w-xs md:max-w-sm mt-8 bg-zinc-900/50 rounded-xl border border-white/5 overflow-hidden">
+              <div className="p-4 text-center hover:bg-white/5 transition-colors cursor-pointer">
+                <div className="text-2xl font-bold text-white">400</div>
+                <div className="text-[10px] text-zinc-500 uppercase font-bold tracking-widest">
+                  Connections
+                </div>
+              </div>
+              <div className="p-4 text-center border-l border-white/5 hover:bg-white/5 transition-colors cursor-pointer">
+                <div className="text-2xl font-bold text-white">10</div>
+                <div className="text-[10px] text-zinc-500 uppercase font-bold tracking-widest">
+                  Posts
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-        <div className="text-black">
-          <div className="mt-4">
-            <h2 className="p-2 text-2xl font-bold bg-gray-300 inline-block rounded-xl mx-4">
-              Posts
-            </h2>
-            <div>{/* posts*/}</div>
+          <div className="mt-12">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                Posts
+                <span className="text-xs font-normal text-zinc-500 bg-zinc-900 px-2 py-1 rounded-full border border-zinc-800">
+                  {posts?.length}
+                </span>
+              </h2>
+              <div className="text-sm text-zinc-500 flex gap-4">
+                <span className="text-white font-medium cursor-pointer">
+                  Latest
+                </span>
+              </div>
+            </div>
+            <UserPosts isLoggedInUser={false} userId={userId} />
           </div>
         </div>
       </div>
