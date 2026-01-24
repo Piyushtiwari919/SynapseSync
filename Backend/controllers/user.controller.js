@@ -26,6 +26,30 @@ const getRequestsReceived = async (req, res) => {
   }
 };
 
+const getRequestSend = async (req, res) => {
+  try {
+    const loggedInUser = req.user;
+    const connectionRequestsSend = await ConnectionRequest.find({
+      $and: [{ fromUserId: loggedInUser._id }, { status: "interested" }],
+    }).populate("toUserId", [
+      "firstName",
+      "lastName",
+      "profileImageUrl",
+      "skills",
+      "gender",
+      "age",
+      "about",
+    ]);
+
+    return res.status(200).json({
+      message: "Data fetched successfully",
+      connectionRequestsSend,
+    });
+  } catch (error) {
+    return res.status(400).send(`ERROR: ${error.message}`);
+  }
+};
+
 const getConnections = async (req, res) => {
   try {
     const loggedInUser = req.user;
@@ -37,14 +61,15 @@ const getConnections = async (req, res) => {
       ],
     }).populate(
       "fromUserId toUserId",
-      "firstName lastName profileImageUrl about"
+      "firstName lastName profileImageUrl about",
     );
 
     const filteredResponse = connectionRequests.map((connection) => {
-      if (connection.fromUserId.toString() === loggedInUser._id.toString()) {
+      if (connection.fromUserId._id.toString() === loggedInUser._id.toString()) {
         return connection.toUserId;
+      } else {
+        return connection.fromUserId;
       }
-      return connection.fromUserId;
     });
 
     return res.status(200).send(filteredResponse);
@@ -112,4 +137,4 @@ const getFeed = async (req, res) => {
   }
 };
 
-export { getRequestsReceived, getConnections, getFeed };
+export { getRequestsReceived, getConnections, getRequestSend, getFeed };

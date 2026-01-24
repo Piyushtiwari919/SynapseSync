@@ -50,7 +50,7 @@ const handleRequestSend = async (req, res) => {
     });
   } catch (error) {
     const serialized = JSON.parse(
-      JSON.stringify(err, Object.getOwnPropertyNames(err))
+      JSON.stringify(err, Object.getOwnPropertyNames(err)),
     );
     // console.log(serialized);
 
@@ -100,4 +100,23 @@ const handleRequestRecieved = async (req, res) => {
   }
 };
 
-export { handleRequestSend, handleRequestRecieved };
+const handleRequestWithDraw = async (req, res) => {
+  try {
+    const loggedInUser = req?.user;
+    const userId = req.params?.userId;
+
+    await ConnectionRequest.findOneAndDelete({
+      $and: [
+        { toUserId: userId },
+        { fromUserId: loggedInUser._id },
+        { status: "interested" },
+      ]
+    });
+
+    return res.status(200).send("Request Withdrawn Successfully");
+  } catch (error) {
+    return res.status(400).send(`ERROR: ${error.message}`);
+  }
+};
+
+export { handleRequestSend, handleRequestRecieved, handleRequestWithDraw };

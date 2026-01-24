@@ -9,7 +9,7 @@ const getUserPosts = async (req, res) => {
     let limit = parseInt(req.query.limit) || 10;
     limit = limit > 50 ? 50 : limit;
     const skip = (page - 1) * limit;
-    console.log(userId);
+    //console.log(userId);
     if (!userId) {
       throw new Error("UserId is required");
     }
@@ -31,7 +31,7 @@ const createPostContoller = async (req, res) => {
   try {
     const loggedInUser = req.user;
     const { description } = req.body;
-    console.log(description);
+    //console.log(description);
 
     if (!description) {
       throw new Error("Description is Required");
@@ -50,7 +50,7 @@ const createPostContoller = async (req, res) => {
 
     await userPost.save();
 
-    console.log(userPost);
+    //console.log(userPost);
 
     return res.status(200).send("Post Created Successfully");
   } catch (error) {
