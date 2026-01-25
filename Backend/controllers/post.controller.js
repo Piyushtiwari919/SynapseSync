@@ -77,7 +77,7 @@ updatePostContoller.like = async (req, res) => {
       {
         $addToSet: { likes: { userId: loggedInUser._id } },
       },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     // console.log(updatedPost);
@@ -102,7 +102,7 @@ updatePostContoller.dislike = async (req, res) => {
       {
         $pull: { likes: { userId: loggedInUser._id } },
       },
-      { new: true }
+      { new: true },
     );
 
     if (!updatedPost) {
@@ -114,4 +114,17 @@ updatePostContoller.dislike = async (req, res) => {
   }
 };
 
-export { getUserPosts, createPostContoller, updatePostContoller };
+const deletePost = async (req, res) => {
+  try {
+    const { postId, userId } = req.body;
+    const loggedInUser = req.user;
+    if (loggedInUser._id.toString() !== userId.toString()) {
+      return res.status(403).send("UnAuthorized User");
+    }
+    await Post.findByIdAndDelete({ _id: postId });
+  } catch (error) {
+    return res.status(400).send(`${error.message}`);
+  }
+};
+
+export { getUserPosts, createPostContoller, updatePostContoller, deletePost };

@@ -4,6 +4,7 @@ import {
   createPostContoller,
   updatePostContoller,
   getUserPosts,
+  deletePost,
 } from "../controllers/post.controller.js";
 import { upload } from "../middlewares/multer.js";
 
@@ -21,5 +22,6 @@ postRouter.post(
 
 postRouter.patch("/post/update/like", userAuth, updatePostContoller.like);
 postRouter.patch("/post/update/dislike", userAuth, updatePostContoller.dislike);
+postRouter.delete("/post/delete", userAuth, deletePost);
 
 export default postRouter;
