@@ -51,7 +51,7 @@ const EmailVerify = () => {
       const res = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/otp/send`,
         {},
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       await new Promise((resolve) => setTimeout(resolve, 1500));
@@ -62,7 +62,7 @@ const EmailVerify = () => {
     } catch (err) {
       console.error(err);
       setError(
-        err.response?.data?.message || "Failed to send OTP. Please try again."
+        err.response?.data?.message || "Failed to send OTP. Please try again.",
       );
       setToast({ type: "error", msg: "Failed to send OTP" });
     } finally {
@@ -79,11 +79,11 @@ const EmailVerify = () => {
     try {
       setIsLoading(true);
       setError("");
-      
+
       await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/otp/verify`,
         { otp },
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       await new Promise((resolve) => setTimeout(resolve, 1500));
@@ -106,10 +106,8 @@ const EmailVerify = () => {
     return <AlreadyVerified />;
   }
 
-  // --- 4. RENDER (SENIOR UX DESIGN) ---
   return (
     <div className="min-h-screen bg-[#09090b] text-zinc-100 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background Decor (Atmosphere) */}
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-900/10 rounded-full blur-[128px]"></div>
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-900/10 rounded-full blur-[128px]"></div>
@@ -135,9 +133,7 @@ const EmailVerify = () => {
         </div>
       )}
 
-      {/* Main Card */}
       <div className="w-full max-w-md bg-[#121214] border border-white/5 rounded-3xl shadow-2xl overflow-hidden relative z-10 transition-all duration-500">
-        {/* Dynamic Header */}
         <div className="bg-zinc-900/50 p-8 flex flex-col items-center justify-center border-b border-white/5">
           <div
             className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 transition-all duration-500 ${
@@ -160,9 +156,7 @@ const EmailVerify = () => {
           </p>
         </div>
 
-        {/* Interactive Body */}
         <div className="p-8 space-y-6">
-          {/* PHASE 1: SEND OTP BUTTON */}
           {!isOtpSent && (
             <div className="animate-in fade-in zoom-in-95 duration-300">
               <button
@@ -185,7 +179,6 @@ const EmailVerify = () => {
             </div>
           )}
 
-          {/* PHASE 2: INPUT + VERIFY + RESEND */}
           {isOtpSent && (
             <div className="space-y-6 animate-in slide-in-from-bottom-4 fade-in duration-500">
               {/* OTP Input */}
@@ -229,7 +222,6 @@ const EmailVerify = () => {
                   )}
                 </button>
 
-                {/* Resend Button with Logic */}
                 <button
                   onClick={handleSendOtp}
                   disabled={!canResend || isLoading}
@@ -245,7 +237,6 @@ const EmailVerify = () => {
                     // Countdown
                     <span>Resend code in {timer}s</span>
                   ) : (
-                    // Active
                     <>
                       <RefreshCw size={14} />
                       <span>Resend Code</span>
@@ -257,7 +248,6 @@ const EmailVerify = () => {
           )}
         </div>
 
-        {/* Footer */}
         <div className="bg-zinc-900/30 p-4 border-t border-white/5 text-center">
           <Link
             to="/"

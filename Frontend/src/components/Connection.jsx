@@ -6,7 +6,7 @@ import ConnectedUserCard from "./ConnectedUserCard.jsx";
 import { Search, Users, Sparkles } from "lucide-react"; // Added Sparkles for 'human' touch
 import EmptyState from "./EmptyConnectionState.jsx";
 import ErrorState from "./ErrorState.jsx";
-import UserRequestSkeleton from "./UserRequestSkeleton.jsx";
+import ConnectionShimmerCard from "./ConnectionShimmerCard.jsx";
 
 const Connection = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -19,7 +19,7 @@ const Connection = () => {
     try {
       const response = await axios.get(
         `${import.meta.env.VITE_BACKEND_URL}/user/connections`,
-        { withCredentials: true }
+        { withCredentials: true },
       );
       dispatch(addConnections(response?.data));
     } catch (error) {
@@ -38,15 +38,14 @@ const Connection = () => {
     return <ErrorState onRetry={getConnections} isConnection={true} />;
   }
 
-  // --- LOADING STATE ---
   if (isLoading) {
     return (
-      <div className="w-full min-h-[calc(100vh-4rem)] bg-[#09090b] p-8">
+      <div className="w-full min-h-[calc(100vh-4rem)] bg-[#09090b] p-4 sm:p-8">
         <div className="max-w-7xl mx-auto">
-          <div className="h-8 w-48 bg-zinc-800 rounded-lg mb-8 animate-pulse"></div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <UserRequestSkeleton key={i} />
+          <div className="h-8 w-32 sm:w-48 bg-zinc-800/50 rounded-lg mb-6 sm:mb-8 animate-pulse"></div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-6">
+            {[...Array(10)].map((_, i) => (
+              <ConnectionShimmerCard key={i} />
             ))}
           </div>
         </div>
@@ -55,7 +54,7 @@ const Connection = () => {
   }
 
   const filteredConnections = connections.filter((c) =>
-    c.firstName.toLowerCase().includes(searchTerm.toLowerCase())
+    c.firstName.toLowerCase().includes(searchTerm.toLowerCase()),
   );
   // If we found only 1 person (either total or after search), we center them.
   // Otherwise, we use the grid.
@@ -64,7 +63,6 @@ const Connection = () => {
   return (
     <div className="w-full min-h-[calc(100vh-4rem)] bg-[#0a0a0a] bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-zinc-900 via-[#0a0a0a] to-black text-zinc-100 p-4 md:p-8 pb-24">
       <div className="max-w-7xl mx-auto">
-        {/* --- HEADER --- */}
         <div className="flex flex-col md:flex-row justify-between items-end md:items-center mb-10 gap-6">
           <div className="relative">
             <div className="absolute -top-6 -left-6 w-20 h-20 bg-cyan-500/10 rounded-full blur-2xl"></div>
@@ -80,8 +78,6 @@ const Connection = () => {
               updated with their latest activities.
             </p>
           </div>
-
-          {/* --- SEARCH BAR --- */}
           <div className="relative w-full md:w-80 group">
             <div className="absolute inset-0 bg-linear-to-r from-cyan-500 to-blue-500 rounded-xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
             <div className="relative bg-zinc-900 rounded-xl flex items-center border border-zinc-800 focus-within:border-cyan-500/50 transition-colors">
@@ -98,7 +94,6 @@ const Connection = () => {
           </div>
         </div>
 
-        {/* --- CONTENT AREA --- */}
         {connections.length === 0 || !connections ? (
           <div className="flex justify-center py-20">
             <EmptyState />
@@ -110,20 +105,19 @@ const Connection = () => {
             className={
               isSingleItem
                 ? "flex justify-center w-full animate-in fade-in zoom-in duration-500"
-                : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500"
+                : "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-6 w-full animate-in fade-in slide-in-from-bottom-4 duration-500"
             }
           >
             {filteredConnections.map((connection) => (
               <div
                 key={connection._id || connection.firstName}
-                className={isSingleItem ? "w-full max-w-sm" : "w-full"}
+                className="w-full flex justify-center"
               >
                 <ConnectedUserCard user={connection} />
               </div>
             ))}
           </div>
         ) : (
-          /* Empty Search Result */
           <div className="flex flex-col items-center justify-center py-24 text-center">
             <div className="bg-zinc-900/50 p-6 rounded-full border border-zinc-800/50 mb-4 shadow-inner">
               <Sparkles size={32} className="text-zinc-600" />

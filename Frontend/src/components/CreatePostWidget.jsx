@@ -58,7 +58,7 @@ const CreatePostWidget = ({ onPostCreated }) => {
     <div className="bg-[#121214] border border-zinc-800 rounded-2xl p-4 mb-6 shadow-lg">
       <div className="flex gap-4">
         {/* Avatar */}
-        <Link to={`/profile/${user?._id}`} className="shrink-0">
+        <Link to={`/profile`} className="shrink-0">
           <img
             src={user?.profileImageUrl || "https://placehold.co/100"}
             alt="Me"

@@ -18,7 +18,7 @@ import Request from "./Request.jsx";
 import Explore from "./Explore.jsx";
 import ViewProfile from "./ViewProfile.jsx";
 import CreatePost from "./CreatePost.jsx";
-import EmailVeification from "./EmailVeification.jsx";
+import EmailVerify from "./EmailVerification.jsx";
 
 const Body = () => {
   const appRouter = createBrowserRouter(
@@ -35,8 +35,8 @@ const Body = () => {
         <Route path="/explore" element={<Explore />} />
         <Route path="/post/create" element={<CreatePost />} />
         <Route path="/profile/:userId" element={<ViewProfile />} />
-        <Route path="/verify/email" element={<EmailVeification />} />
-      </Route>
+        <Route path="/verify/email" element={<EmailVerify />} />
+      </Route>,
     )
   );
 

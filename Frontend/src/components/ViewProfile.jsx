@@ -16,8 +16,9 @@ import {
   UserRoundCheck,
   X,
   Link as LinkIcon,
+  Hourglass,
 } from "lucide-react";
-import { removeRequest } from "../../store/requestSlice.js";
+import { removeRequestRecieved } from "../../store/requestSlice.js";
 import axios from "axios";
 
 const ViewProfile = () => {
@@ -30,7 +31,7 @@ const ViewProfile = () => {
   const navigate = useNavigate();
 
   const profileImageVisibility = useSelector(
-    (store) => store.state.imageVisibility
+    (store) => store.state.imageVisibility,
   );
 
   const loggedInUser = useSelector((store) => store.user);
@@ -42,7 +43,10 @@ const ViewProfile = () => {
   }, []);
 
   const connectedUsers = useSelector((store) => store.connections);
-  const requestRecieved = useSelector((store) => store.requests);
+  const requestRecieved = useSelector(
+    (store) => store.requests?.requestsRecieved,
+  );
+  const requestSend = useSelector((store) => store.requets?.requestsSend);
   // console.log(requestRecieved);
 
   const handleImageVisibility = () => {
@@ -54,16 +58,15 @@ const ViewProfile = () => {
   const posts = useSelector((store) => store.posts);
 
   const isAlreadyConnected = connectedUsers?.some(
-    (connection) => connection?._id === user?._id
+    (connection) => connection?._id === user?._id,
   );
 
-  {
-    /** Left */
-  }
-  // const isAlreadyRequestSend = requestSend?.some((request)=> request._id === user._id);
+  const isAlreadyRequestSend = requestSend?.some(
+    (request) => request?.toUserId?._id === user._id,
+  );
 
   const isRequestRecieved = requestRecieved?.some(
-    (request) => request?.fromUserId?._id === user._id
+    (request) => request?.fromUserId?._id === user._id,
   );
 
   const handleConnectionAccept = async () => {
@@ -73,16 +76,41 @@ const ViewProfile = () => {
           user?._id
         }`,
         {},
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
-      dispatch(removeRequest(_id));
+      dispatch(removeRequestRecieved(_id));
       setToastMesssage("Connection accepted Successfull");
       setToast(true);
 
       setTimeout(() => {
         setToast(false);
       }, 3000);
+    } catch (error) {
+      setToastMesssage("Something Went Wrong");
+      setToast(true);
+
+      setTimeout(() => {
+        setToast(false);
+      }, 3000);
+      console.error(error);
+    }
+  };
+
+  const handleRequestSend = async () => {
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/request/send/interested/${userId}`,
+        {},
+        { withCredentials: true },
+      );
+      setToastMesssage("Connection Request Send");
+      setToast(true);
+
+      setTimeout(() => {
+        setToast(false);
+      }, 3000);
+      
     } catch (error) {
       setToastMesssage("Something Went Wrong");
       setToast(true);
@@ -216,8 +244,13 @@ const ViewProfile = () => {
                     </p>
                   </div>
                   <div className="flex items-center justify-center gap-3 mt-2">
-                    {!isAlreadyConnected && !isRequestRecieved ? (
-                      <button className="flex items-center gap-2 px-6 py-2.5 bg-white text-black font-bold rounded-full hover:bg-zinc-200 transition-all shadow-[0_0_20px_rgba(255,255,255,0.15)] hover:shadow-[0_0_25px_rgba(255,255,255,0.3)] active:scale-95 hover:cursor-pointer">
+                    {!isAlreadyConnected &&
+                    !isRequestRecieved &&
+                    !isAlreadyRequestSend ? (
+                      <button
+                        onClick={handleRequestSend}
+                        className="flex items-center gap-2 px-6 py-2.5 bg-white text-black font-bold rounded-full hover:bg-zinc-200 transition-all shadow-[0_0_20px_rgba(255,255,255,0.15)] hover:shadow-[0_0_25px_rgba(255,255,255,0.3)] active:scale-95 hover:cursor-pointer"
+                      >
                         <UserPlus size={18} />
                         <span>Connect</span>
                       </button>
@@ -234,6 +267,12 @@ const ViewProfile = () => {
                       </button>
                     ) : (
                       ""
+                    )}
+                    {isAlreadyRequestSend && (
+                      <>
+                        <Hourglass size={18} />
+                        <span>Pending</span>
+                      </>
                     )}
                     <button className="p-2.5 rounded-full bg-zinc-800 hover:bg-zinc-700 text-white transition-colors border border-zinc-700">
                       <MessageCircle size={18} />

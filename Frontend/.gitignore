@@ -26,5 +26,4 @@ coverage/
 *.sw?
 
 ./src/components/EmailTest.jsx
-../src/components/EmailTest.jsx
-./EmailTest.jsx
+EmailTest.jsx

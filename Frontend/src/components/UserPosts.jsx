@@ -13,9 +13,9 @@ const UserPosts = ({ userId, isLoggedInUser }) => {
     try {
       const response = await axios.get(
         `${import.meta.env.VITE_BACKEND_URL}/post/${userId}`,
-        { withCredentials: true }
+        { withCredentials: true },
       );
-      console.log(response);
+      //console.log(response);
       dispatch(addPosts(response.data));
     } catch (error) {
       console.error(error);

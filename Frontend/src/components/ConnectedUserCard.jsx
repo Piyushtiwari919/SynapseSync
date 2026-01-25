@@ -2,11 +2,9 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { addProfileView } from "../../store/stateSlice.js";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import useProfileView from "../hooks/useProfileView.jsx";
 
 const ConnectedUserCard = ({ user }) => {
-  // const user = useSelector((store)=> store.user);
   const [toast, setToast] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -37,7 +35,7 @@ const ConnectedUserCard = ({ user }) => {
         </div>
       )}
       <div
-        className="relative group flex flex-col items-center w-[47%] md:w-64 bg-[#1e1e22] rounded-3xl p-4 border border-white/5 shadow-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-cyan-500/10 hover:cursor-pointer"
+        className="relative group w-full flex flex-col items-center md:w-64 bg-[#1e1e22] rounded-3xl p-4 border border-white/5 shadow-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-cyan-500/10 hover:cursor-pointer"
         onClick={handleProfileView}
       >
         {toast && (
