@@ -4,7 +4,7 @@ const updatePostContoller = {};
 
 const getUserPosts = async (req, res) => {
   try {
-    const userId = req.params.userId;
+    const userId = req.params?.userId;
     const page = parseInt(req.query.page) || 1;
     let limit = parseInt(req.query.limit) || 10;
     limit = limit > 50 ? 50 : limit;
@@ -22,6 +22,27 @@ const getUserPosts = async (req, res) => {
       .lean();
 
     return res.status(200).send(userPosts);
+  } catch (error) {
+    return res.status(400).send(`${error.message}`);
+  }
+};
+
+const editPostController = async (req, res) => {
+  try {
+    const loggedInUser = req.user;
+    const postId = req.params?.postId;
+    const { description } = req.body;
+    const postDetails = await Post.findById({ _id: postId });
+    if (postDetails?.userId?._id.toString() !== loggedInUser._id.toString()) {
+      return res.status(403).send(`UnAuthorized Task`);
+    }
+
+    const updatedPost = await Post.findByIdAndUpdate(
+      { _id: postId },
+      { description: description },
+    );
+
+    return res.status(200).send(updatedPost);
   } catch (error) {
     return res.status(400).send(`${error.message}`);
   }
@@ -114,6 +135,8 @@ updatePostContoller.dislike = async (req, res) => {
   }
 };
 
+//Modify this to soft delete in future
+//* await Post.findByIdAndUpdate(postId, { isDeleted: true });
 const deletePost = async (req, res) => {
   try {
     const { postId, userId } = req.body;
@@ -127,4 +150,10 @@ const deletePost = async (req, res) => {
   }
 };
 
-export { getUserPosts, createPostContoller, updatePostContoller, deletePost };
+export {
+  getUserPosts,
+  createPostContoller,
+  editPostController,
+  updatePostContoller,
+  deletePost,
+};
