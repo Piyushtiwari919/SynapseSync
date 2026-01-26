@@ -153,22 +153,22 @@ const Feed = () => {
                 <>
                   {feedForUser?.map((feed) => (
                     <FeedCard
-                      feed={feed}
                       key={feed._id}
-                      isProfilePost={false}
+                      feed={feed}
+                      isLoggedInUser={feed?.userId._id === user._id || false}
                     />
                   ))}
                   {moreFeed?.map((feed) => (
                     <FeedCard
-                      feed={feed}
                       key={feed._id}
-                      isProfilePost={false}
+                      feed={feed}
+                      isLoggedInUser={feed?.userId._id === user._id}
                     />
                   ))}
                 </>
               ) : (
                 feedForUser?.map((feed) => (
-                  <FeedCard feed={feed} key={feed._id} isProfilePost={false} />
+                  <FeedCard feed={feed} key={feed._id}  />
                 ))
               )}
             </div>

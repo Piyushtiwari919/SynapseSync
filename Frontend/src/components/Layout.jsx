@@ -18,12 +18,18 @@ const Layout = () => {
     try {
       const res = await axios.get(
         `${import.meta.env.VITE_BACKEND_URL}/profile/view`,
-        { withCredentials: true }
+        { withCredentials: true },
       );
       dispatch(addUser(res?.data));
     } catch (error) {
       if (error.response?.status === 401) {
-        navigate("/login");
+        if (
+          location.pathname !== "/login" &&
+          location.pathname !== "/" &&
+          location.pathname !== "/register"
+        ) {
+          navigate("/register");
+        }
       }
       console.error(error);
     }
@@ -33,7 +39,7 @@ const Layout = () => {
     try {
       const response = await axios.get(
         `${import.meta.env.VITE_BACKEND_URL}/user/connections`,
-        { withCredentials: true }
+        { withCredentials: true },
       );
       dispatch(addConnections(response?.data));
     } catch (error) {

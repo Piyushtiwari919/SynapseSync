@@ -41,7 +41,7 @@ const UserPosts = ({ userId, isLoggedInUser }) => {
       <div>
         <p>
           <button onClick={getPosts}>
-            <RotateCcw size={18} />
+            <RotateCcw size={28} />
           </button>
         </p>
       </div>
@@ -81,7 +81,7 @@ const UserPosts = ({ userId, isLoggedInUser }) => {
   return (
     <div>
       {posts.map((post) => {
-        return <FeedCard feed={post} key={post._id} isProfilePost={true} />;
+        return <FeedCard feed={post} key={post._id} isLoggedInUser={isLoggedInUser}/>;
       })}
     </div>
   );

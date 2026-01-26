@@ -141,7 +141,6 @@ const ViewProfile = () => {
     getProfile();
   }, []);
 
-  // --- 2. LOADING STATE (SKELETON) ---
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#09090b] flex items-center justify-center">
@@ -188,7 +187,6 @@ const ViewProfile = () => {
         </div>
       </Activity>
 
-      {/* --- MAIN PAGE --- */}
       <div className="min-h-screen bg-[#09090b] text-zinc-100 font-sans pb-20 overflow-x-hidden relative">
         <div className="fixed top-0 left-0 w-full h-full pointer-events-none">
           <div className="absolute top-[-10%] right-[-5%] w-125 h-125 bg-purple-900/20 rounded-full blur-[120px] opacity-50"></div>

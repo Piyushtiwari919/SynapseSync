@@ -250,7 +250,7 @@ const EmailVerify = () => {
 
         <div className="bg-zinc-900/30 p-4 border-t border-white/5 text-center">
           <Link
-            to="/"
+            to="/feed"
             className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
           >
             Back to Home

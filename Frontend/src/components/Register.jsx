@@ -15,10 +15,9 @@ import {
   ArrowLeft,
   Eye,
   EyeOff,
-} from "lucide-react"; // Icons for human-friendly design
+} from "lucide-react";
 
 const Register = () => {
-  // --- 1. LOGIC SECTION (UNTOUCHED) ---
   const navigate = useNavigate();
   const [userData, setUserData] = useState({
     firstName: "",
@@ -89,7 +88,7 @@ const Register = () => {
         formData.append("avatar", avatar);
       }
 
-      // *Debugging (Your logic preserved)
+      // *Debugging (logic preserved)
       // console.log("--- FORM DATA CONTENTS ---");
       // for (let [key, value] of formData.entries()) {
       //   console.log(`${key}:`, value);
@@ -121,7 +120,6 @@ const Register = () => {
     }
   };
 
-  // --- 2. DESIGN SECTION (SENIOR UPGRADE) ---
   return (
     <div className="min-h-screen w-full bg-[#09090b] flex items-center justify-center p-4 md:p-8 relative overflow-hidden">
       {/* Background Ambience */}

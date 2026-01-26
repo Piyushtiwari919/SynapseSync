@@ -8,7 +8,8 @@ const postSlice = createSlice({
       return action.payload;
     },
     removePosts: (state, action) => {
-      return null;
+      const newState = state.filter((post) => post._id !== action.payload);
+      return newState;
     },
   },
 });
