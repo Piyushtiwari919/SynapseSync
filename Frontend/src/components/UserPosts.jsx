@@ -9,6 +9,7 @@ const UserPosts = ({ userId, isLoggedInUser }) => {
   const [isLoading, setIsLoading] = useState(true);
   const dispatch = useDispatch();
   const posts = useSelector((store) => store.posts);
+  const user = useSelector((store) => store.user);
   const getPosts = async () => {
     try {
       const response = await axios.get(
@@ -51,15 +52,27 @@ const UserPosts = ({ userId, isLoggedInUser }) => {
   if (posts.length === 0 && isLoggedInUser) {
     return (
       <div className="min-h-50 flex flex-col items-center justify-center border-2 border-dashed border-zinc-800 rounded-2xl bg-zinc-900/30">
-        <Link
-          to="/post/create"
-          title="post"
-          className="text-cyan-400 hover:text-cyan-300 transition-colors -mt-5"
-        >
-          <div className="bg-zinc-800 p-3 rounded-full border border-zinc-700 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
-            <PlusSquare size={24} />
-          </div>
-        </Link>
+        {user?.isVerified ? (
+          <Link
+            to="/post/create"
+            title="post"
+            className="text-cyan-400 hover:text-cyan-300 transition-colors -mt-5"
+          >
+            <div className="bg-zinc-800 p-3 rounded-full border border-zinc-700 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+              <PlusSquare size={24} />
+            </div>
+          </Link>
+        ) : (
+          <Link
+            to="/verify/email"
+            title="post"
+            className="text-cyan-400 hover:text-cyan-300 transition-colors -mt-5"
+          >
+            <div className="bg-zinc-800 p-3 rounded-full border border-zinc-700 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+              <PlusSquare size={24} />
+            </div>
+          </Link>
+        )}
         <h3 className="text-zinc-400 font-medium">No posts yet</h3>
         <p className="text-zinc-600 text-sm mt-1">
           Share your first moment with the world.
@@ -81,7 +94,13 @@ const UserPosts = ({ userId, isLoggedInUser }) => {
   return (
     <div>
       {posts.map((post) => {
-        return <FeedCard feed={post} key={post._id} isLoggedInUser={isLoggedInUser}/>;
+        return (
+          <FeedCard
+            feed={post}
+            key={post._id}
+            isLoggedInUser={isLoggedInUser}
+          />
+        );
       })}
     </div>
   );

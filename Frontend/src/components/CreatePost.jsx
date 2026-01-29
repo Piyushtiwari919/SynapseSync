@@ -2,10 +2,12 @@ import axios from "axios";
 import { useState, useRef } from "react";
 import { Image as ImageIcon, X, Send, Loader2, Smile } from "lucide-react";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const CreatePost = () => {
   const user = useSelector((store) => store.user); 
   const fileInputRef = useRef(null); 
+  const navigate = useNavigate();
 
   const [description, setDescription] = useState("");
   const [postImage, setPostImage] = useState(null);
