@@ -3,7 +3,6 @@ import User from "../models/user.model.js";
 import nodemailer from "nodemailer";
 import crypto from "crypto";
 import bcrypt from "bcrypt";
-// import jwt from "jsonwebtoken";
 
 const transporter = nodemailer.createTransport({
   service: "gmail",

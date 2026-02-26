@@ -20,6 +20,7 @@ import ViewProfile from "./ViewProfile.jsx";
 import CreatePost from "./CreatePost.jsx";
 import EmailVerify from "./EmailVerification.jsx";
 import EditPost from "./EditPost.jsx";
+import WebChat from "./WebChat.jsx";
 
 const Body = () => {
   const appRouter = createBrowserRouter(
@@ -38,6 +39,7 @@ const Body = () => {
         <Route path="/profile/:userId" element={<ViewProfile />} />
         <Route path="/verify/email" element={<EmailVerify />} />
         <Route path="/edit/post/:postId" element={<EditPost />} />
+        <Route path="/messages" element={<WebChat />} />
       </Route>,
     )
   );

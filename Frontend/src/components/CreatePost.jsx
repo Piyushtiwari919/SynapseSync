@@ -5,8 +5,8 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 const CreatePost = () => {
-  const user = useSelector((store) => store.user); 
-  const fileInputRef = useRef(null); 
+  const user = useSelector((store) => store.user);
+  const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
   const [description, setDescription] = useState("");
@@ -15,7 +15,7 @@ const CreatePost = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [toast, setToast] = useState(false);
-  const [success, setSuccess] = useState(false); 
+  const [success, setSuccess] = useState(false);
 
   const handleImage = (e) => {
     const postImageFile = e.target.files[0];
@@ -60,7 +60,7 @@ const CreatePost = () => {
         {
           headers: { "Content-Type": "multipart/form-data" },
           withCredentials: true,
-        }
+        },
       );
 
       setSuccess(true);
@@ -81,7 +81,7 @@ const CreatePost = () => {
       setError(
         error.response?.data?.message ||
           error.message ||
-          "Failed to create post"
+          "Failed to create post",
       );
       setToast(true);
       setTimeout(() => setToast(false), 3000);
