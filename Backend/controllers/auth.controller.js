@@ -50,9 +50,9 @@ authController.register = async (req, res) => {
       throw new Error("Something went wrong");
     }
 
-    const timeOfCookie = 24 * 60 * 60 * 1000;
+    const timeOfCookie = 2 * 24 * 60 * 60 * 1000;
 
-    res.cookie("refeshToken", refreshToken, {
+    res.cookie("refreshToken", refreshToken, {
       expires: new Date(Date.now() + timeOfCookie),
       httpOnly: true,
       secure: true,
@@ -95,6 +95,14 @@ authController.login = async (req, res) => {
     }
 
     const timeOfRefreshCookie = 7 * 24 * 60 * 60 * 1000;
+    const timeOfAccessCookie = 2 * 60 * 60 * 1000;
+
+    res.cookie("accessToken", accessToken, {
+      expires: new Date(Date.now() + timeOfAccessCookie),
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+    });
 
     res.cookie("refreshToken", refreshToken, {
       expires: new Date(Date.now() + timeOfRefreshCookie),
@@ -104,9 +112,7 @@ authController.login = async (req, res) => {
     });
 
     const sanatizedUser = getSanatizedUser(user);
-    return res
-      .status(200)
-      .send({ user: sanatizedUser, accessToken: accessToken });
+    return res.status(200).send({ user: sanatizedUser });
   } catch (error) {
     return res.status(400).send(`ERROR: ${error.message}`);
   }
@@ -123,9 +129,48 @@ authController.logout = async (req, res) => {
 
     return res
       .cookie("refreshToken", null, { expires: new Date(Date.now()) })
+      .cookie("accessToken", null, { expires: new Date(Date.now()) })
       .send("Logged Out Successfully");
   } catch (error) {
     return res.status(401).send(`ERROR: ${error.message}`);
+  }
+};
+
+authController.refreshUserToken = async (req, res) => {
+  try {
+    const cookies = req.cookies;
+    const { refreshToken } = cookies;
+    if (!refreshToken) {
+      return res.status(401).send("Unauthorized: No refresh token provided");
+    }
+    const decodedObj = jwt.verify(refreshToken, process.env.JWT_SECRET_KEY);
+    if (!decodedObj) {
+      return res.status(401).send("Unauthorized access: No Response from JWT");
+    }
+
+    const { userId } = decodedObj;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(401).send("Unauthorized: User no longer exists");
+    }
+
+    const accessToken = await user.getJWTAccessToken();
+
+    const timeOfAccessCookie = 2 * 60 * 60 * 1000;
+    /**maxAge vs expires: When setting cookies in Express, using maxAge (which takes milliseconds) is generally cleaner and less prone to timezone bugs than creating a new Date object for expires. */
+
+    res.cookie("accessToken", accessToken, {
+      maxAge: timeOfAccessCookie,
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+    });
+
+    return res.status(200).send("Access Token generated successfully");
+  } catch (error) {
+    return res.status(400).send(`${error.message}`);
   }
 };
 

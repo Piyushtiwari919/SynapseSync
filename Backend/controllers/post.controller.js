@@ -116,7 +116,7 @@ updatePostContoller.dislike = async (req, res) => {
   try {
     const loggedInUser = req.user;
     const { postId } = req.body;
-    console.log(postId, loggedInUser);
+    //console.log(postId, loggedInUser);
 
     const updatedPost = await Post.findByIdAndUpdate(
       postId,

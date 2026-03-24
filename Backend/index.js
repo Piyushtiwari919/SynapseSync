@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import http from "http";
 import cookieParser from "cookie-parser";
 const app = express();
 import authRouter from "./routes/auth.route.js";
@@ -11,6 +12,8 @@ import requestRouter from "./routes/request.route.js";
 import exploreRouter from "./routes/explore.route.js";
 import postRouter from "./routes/post.route.js";
 import emailRouter from "./routes/email.route.js";
+import chatRouter from "./routes/chat.routes.js";
+import initializeSocket from "./chat/chat.socket.js";
 
 const corsOptions = {
   origin: "http://localhost:5173",
@@ -30,13 +33,17 @@ app.use("/", requestRouter);
 app.use("/", exploreRouter);
 app.use("/", postRouter);
 app.use("/", emailRouter);
+app.use("/",chatRouter);
+
+const server = http.createServer(app);
+initializeSocket(server);
 
 const PORT = process.env.PORT || 5000;
 
 connectDB()
   .then(() => {
     console.log("Database Connection established");
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       console.log(`Server is listening at port ${PORT}`);
     });
   })
