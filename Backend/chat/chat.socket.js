@@ -74,7 +74,8 @@ const initializeSocket = (server) => {
       },
     );
 
-    socket.on("disconnect", () => {
+    socket.on("disconnect", async () => {
+      await Status.updateOne({ userId: userId }, { $set: { isOnline: false } });
       console.log("User Disconnected");
     });
   });

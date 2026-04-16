@@ -112,6 +112,7 @@ authController.login = async (req, res) => {
     });
 
     const sanatizedUser = getSanatizedUser(user);
+    //console.log(sanatizedUser);
     return res.status(200).send({ user: sanatizedUser });
   } catch (error) {
     return res.status(400).send(`ERROR: ${error.message}`);

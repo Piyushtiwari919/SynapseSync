@@ -14,6 +14,7 @@ import postRouter from "./routes/post.route.js";
 import emailRouter from "./routes/email.route.js";
 import chatRouter from "./routes/chat.routes.js";
 import initializeSocket from "./chat/chat.socket.js";
+import statusRouter from "./routes/status.route.js";
 
 const corsOptions = {
   origin: "http://localhost:5173",
@@ -34,6 +35,7 @@ app.use("/", exploreRouter);
 app.use("/", postRouter);
 app.use("/", emailRouter);
 app.use("/",chatRouter);
+app.use("/",statusRouter);
 
 const server = http.createServer(app);
 initializeSocket(server);

@@ -4,7 +4,6 @@ import User from "../models/user.model.js";
 export const userAuth = async (req, res, next) => {
   try {
     const cookies = req.cookies;
-    //console.log(cookies);
     const { accessToken } = cookies;
     
     if (!accessToken) {
@@ -12,17 +11,14 @@ export const userAuth = async (req, res, next) => {
     }
 
     const decodedObj = jwt.verify(accessToken, process.env.JWT_SECRET_KEY);
-    //console.log(decodedObj);
-
     const { userId } = decodedObj;
+
     const user = await User.findById({ _id: userId });
     if (!user) {
       throw new Error("User Not Found");
     }
-    //console.log(user);
 
     req.user = user;
-
     next();
   } catch (error) {
     return res.status(400).send("ERROR: " + error.message);

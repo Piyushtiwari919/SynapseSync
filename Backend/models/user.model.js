@@ -66,23 +66,24 @@ const userSchema = new Schema(
     },
     verificationToken: String,
   },
-  { timestamps: true }
+  { timestamps: true },
 );
+
 
 userSchema.methods.getJWTRefreshToken = function () {
   const refreshToken = jwt.sign(
     { userId: this._id },
     process.env.JWT_SECRET_KEY,
-    { expiresIn: process.env.JWT_REFRESH_TOKEN_EXPIRY_TIME }
+    { expiresIn: process.env.JWT_REFRESH_TOKEN_EXPIRY_TIME },
   );
   return refreshToken;
 };
 
 userSchema.methods.getJWTAccessToken = function () {
   const accessToken = jwt.sign(
-    { userId: this._id, emailId: this.emailId, firstName:this.firstName },
+    { userId: this._id, emailId: this.emailId, firstName: this.firstName },
     process.env.JWT_SECRET_KEY,
-    { expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRY_TIME }
+    { expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRY_TIME },
   );
   return accessToken;
 };

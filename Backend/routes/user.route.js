@@ -5,6 +5,7 @@ import {
   getFeed,
   getRequestSend,
   getRequestsReceived,
+  getProfileConnections,
 } from "../controllers/user.controller.js";
 
 const userRouter = express.Router();
@@ -12,7 +13,7 @@ const userRouter = express.Router();
 userRouter.get("/user/request/received", userAuth, getRequestsReceived);
 
 userRouter.get("/user/connections", userAuth, getConnections);
-
+userRouter.get("/user/connections/:userId", userAuth, getProfileConnections);
 userRouter.get("/user/request/send", userAuth, getRequestSend);
 
 userRouter.get("/feed", userAuth, getFeed);

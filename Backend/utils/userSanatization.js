@@ -1,11 +1,10 @@
 export const getSanatizedUser = (user) => {
-  const userObj =
-    user.toObject && typeof user.toObject === "function"
-      ? user.toObject()
-      : user;
-  delete userObj.password;
-  delete userObj.__v;
-  return userObj;
+  if (!user) return null;
+
+  const plainUser = typeof user.toObject === "function" ? user.toObject() : user;
+  const { password, __v, ...sanitizedData } = plainUser;
+
+  return sanitizedData;
 };
 
 export const messageSanitization = (message) => {

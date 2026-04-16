@@ -65,7 +65,9 @@ const getConnections = async (req, res) => {
     );
 
     const filteredResponse = connectionRequests.map((connection) => {
-      if (connection.fromUserId._id.toString() === loggedInUser._id.toString()) {
+      if (
+        connection.fromUserId._id.toString() === loggedInUser._id.toString()
+      ) {
         return connection.toUserId;
       } else {
         return connection.fromUserId;
@@ -75,6 +77,27 @@ const getConnections = async (req, res) => {
     return res.status(200).send(filteredResponse);
   } catch (error) {
     return res.status(400).send(`ERROR: ${error.message}`);
+  }
+};
+
+const getProfileConnections = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    if (!userId) {
+      throw new Error("No userId provided");
+    }
+    const connectionRequests = await ConnectionRequest.find({
+      $or: [
+        { fromUserId: userId, status: "accepted" },
+        { toUserId: userId, status: "accepted" },
+      ],
+    });
+
+    //console.log(connectionRequests);
+
+    return res.status(200).send(connectionRequests);
+  } catch (error) {
+    return res.status(400).send(`${error.message}`);
   }
 };
 
@@ -137,4 +160,10 @@ const getFeed = async (req, res) => {
   }
 };
 
-export { getRequestsReceived, getConnections, getRequestSend, getFeed };
+export {
+  getRequestsReceived,
+  getConnections,
+  getProfileConnections,
+  getRequestSend,
+  getFeed,
+};
