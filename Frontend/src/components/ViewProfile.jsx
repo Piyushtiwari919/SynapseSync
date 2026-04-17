@@ -1,12 +1,14 @@
 import { useDispatch, useSelector } from "react-redux";
 import {
+  addConnections,
+  removeConnections,
   addProfileView,
   toggleImageVisibility,
 } from "../../store/stateSlice.js";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { Activity, useEffect, useState } from "react";
 import useProfileView from "../hooks/useProfileView.jsx";
-import UserPosts from "./UserPosts.jsx"; // Ensure this path is correct
+import UserPosts from "./UserPosts.jsx";
 import {
   MapPin,
   Calendar,
@@ -19,7 +21,8 @@ import {
   Hourglass,
 } from "lucide-react";
 import { removeRequestRecieved } from "../../store/requestSlice.js";
-import axios from "axios";
+import api from "../utils/axiosClient.js";
+import ProfileImage from "./ProfileImage.jsx";
 
 const ViewProfile = () => {
   const dispatch = useDispatch();
@@ -53,7 +56,10 @@ const ViewProfile = () => {
     dispatch(toggleImageVisibility());
   };
 
-  const user = useSelector((store) => store.state?.visitedProfileValue?.[0]);
+  const user = useSelector((store) => store.state?.visitedProfileValue);
+  const connections = useSelector(
+    (store) => store.state?.visitedProfileConnections,
+  );
 
   const posts = useSelector((store) => store.posts);
 
@@ -71,12 +77,9 @@ const ViewProfile = () => {
 
   const handleConnectionAccept = async () => {
     try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/request/review/accepted/${
-          user?._id
-        }`,
+      const response = await api.post(
+        `/request/review/accepted/${user?._id}`,
         {},
-        { withCredentials: true },
       );
 
       dispatch(removeRequestRecieved(_id));
@@ -99,18 +102,13 @@ const ViewProfile = () => {
 
   const handleRequestSend = async () => {
     try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/request/send/interested/${userId}`,
-        {},
-        { withCredentials: true },
-      );
+      const response = await api.post(`/request/send/interested/${userId}`, {});
       setToastMesssage("Connection Request Send");
       setToast(true);
 
       setTimeout(() => {
         setToast(false);
       }, 3000);
-      
     } catch (error) {
       setToastMesssage("Something Went Wrong");
       setToast(true);
@@ -125,6 +123,11 @@ const ViewProfile = () => {
   const getProfile = async () => {
     try {
       const response = await useProfileView(userId);
+      const userConnections = await api.get(`/user/connections/${userId}`);
+      //console.log(response);
+      //console.log(userConnections);
+      dispatch(addConnections(userConnections?.data));
+      // addConnections()
       if (response && response.data) {
         dispatch(addProfileView(response?.data));
         setError(false);
@@ -139,6 +142,10 @@ const ViewProfile = () => {
 
   useEffect(() => {
     getProfile();
+
+    return () => {
+      dispatch(removeConnections());
+    };
   }, []);
 
   if (isLoading) {
@@ -166,25 +173,10 @@ const ViewProfile = () => {
         </div>
       )}
       <Activity mode={profileImageVisibility ? "visible" : "hidden"}>
-        <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
-          <div
-            className="absolute inset-0 bg-black/90 backdrop-blur-xl transition-opacity"
-            onClick={handleImageVisibility}
-          />
-          <div className="relative z-10 animate-in zoom-in-95 duration-300">
-            <button
-              onClick={handleImageVisibility}
-              className="absolute -top-12 right-0 md:-right-12 text-white/70 hover:text-white transition-colors"
-            >
-              <X size={32} />
-            </button>
-            <img
-              src={user?.profileImageUrl}
-              alt="Profile Fullscreen"
-              className="max-h-[85vh] w-auto max-w-full rounded-lg shadow-2xl ring-1 ring-white/10"
-            />
-          </div>
-        </div>
+        <ProfileImage
+          user={user}
+          handleImageVisibility={handleImageVisibility}
+        />
       </Activity>
 
       <div className="min-h-screen bg-[#09090b] text-zinc-100 font-sans pb-20 overflow-x-hidden relative">
@@ -272,9 +264,11 @@ const ViewProfile = () => {
                         <span>Pending</span>
                       </>
                     )}
-                    <button className="p-2.5 rounded-full bg-zinc-800 hover:bg-zinc-700 text-white transition-colors border border-zinc-700">
-                      <MessageCircle size={18} />
-                    </button>
+                    <Link to={`/messages/${user?._id}`}>
+                      <button className="p-2.5 rounded-full bg-zinc-800 hover:bg-zinc-700 text-white transition-colors border border-zinc-700">
+                        <MessageCircle size={18} />
+                      </button>
+                    </Link>
                   </div>
                 </div>
                 <div className="mt-6 max-w-2xl">
@@ -299,14 +293,20 @@ const ViewProfile = () => {
               </div>
             </div>
             <div className="grid grid-cols-2 max-w-xs md:max-w-sm mt-8 bg-zinc-900/50 rounded-xl border border-white/5 overflow-hidden">
-              <div className="p-4 text-center hover:bg-white/5 transition-colors cursor-pointer">
-                <div className="text-2xl font-bold text-white">400</div>
-                <div className="text-[10px] text-zinc-500 uppercase font-bold tracking-widest">
-                  Connections
+              <Link to="">
+                <div className="p-4 text-center hover:bg-white/5 transition-colors cursor-pointer">
+                  <div className="text-2xl font-bold text-white">
+                    {connections?.length}
+                  </div>
+                  <div className="text-[10px] text-zinc-500 uppercase font-bold tracking-widest">
+                    Connections
+                  </div>
                 </div>
-              </div>
+              </Link>
               <div className="p-4 text-center border-l border-white/5 hover:bg-white/5 transition-colors cursor-pointer">
-                <div className="text-2xl font-bold text-white">10</div>
+                <div className="text-2xl font-bold text-white">
+                  {posts?.length}
+                </div>
                 <div className="text-[10px] text-zinc-500 uppercase font-bold tracking-widest">
                   Posts
                 </div>

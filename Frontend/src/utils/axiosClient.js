@@ -80,8 +80,8 @@ api.interceptors.response.use(
         processQueue(refreshError, null);
         isRefreshing = false;
 
-        //Only redirect if they ARE NOT already on the login page!
-        if (window.location.pathname !== "/login" && window.location.pathname !== "/register") {
+        //Only redirect if they ARE NOT already on the login page, register page or at the "/" url
+        if (window.location.pathname !== "/login" && window.location.pathname !== "/register" && window.location.pathname !== "/") {
           window.location.href = "/login";
         }
 
