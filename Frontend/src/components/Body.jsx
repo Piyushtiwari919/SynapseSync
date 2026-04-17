@@ -20,7 +20,8 @@ import ViewProfile from "./ViewProfile.jsx";
 import CreatePost from "./CreatePost.jsx";
 import EmailVerify from "./EmailVerification.jsx";
 import EditPost from "./EditPost.jsx";
-import WebChat from "./WebChat.jsx";
+import UserChat from "./UserChat.jsx";
+import Chat from "./Chat.jsx";
 
 const Body = () => {
   const appRouter = createBrowserRouter(
@@ -39,9 +40,10 @@ const Body = () => {
         <Route path="/profile/:userId" element={<ViewProfile />} />
         <Route path="/verify/email" element={<EmailVerify />} />
         <Route path="/edit/post/:postId" element={<EditPost />} />
-        <Route path="/messages" element={<WebChat />} />
+        <Route path="/messages" element={<Chat />} />
+        <Route path="/messages/:targetUserId" element={<UserChat />} />
       </Route>,
-    )
+    ),
   );
 
   return <RouterProvider router={appRouter} />;

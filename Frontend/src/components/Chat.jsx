@@ -90,6 +90,7 @@ const Chat = () => {
 
             <input
               type="text"
+              id="chatText"
               className="w-full bg-[#09090b] border border-zinc-800 text-zinc-100 rounded-xl pl-10 pr-10 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 transition-all placeholder:text-zinc-500"
               placeholder="Search conversations..."
               value={userName}

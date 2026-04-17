@@ -6,6 +6,7 @@ import connectionReducer from "./connectionSlice.js";
 import requestReducer from "./requestSlice.js";
 import exploreReducer from "./exploreSlice.js";
 import postReducer from "./postSlice.js";
+import chatSlice from "./chatSlice.js";
 
 const appStore = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ const appStore = configureStore({
     requests: requestReducer,
     explore: exploreReducer,
     posts: postReducer,
+    chats: chatSlice,
   },
 });
 

@@ -1,11 +1,11 @@
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import NavBar from "./Navbar.jsx";
 import Footer from "./Footer.jsx";
-import axios from "axios";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addUser } from "../../store/userSlice.js";
 import { addConnections } from "../../store/connectionSlice.js";
+import api from "../utils/axiosClient.js";
 
 const Layout = () => {
   const dispatch = useDispatch();
@@ -16,10 +16,7 @@ const Layout = () => {
 
   const fetchUser = async () => {
     try {
-      const res = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/profile/view`,
-        { withCredentials: true },
-      );
+      const res = await api.get(`/profile/view`);
       dispatch(addUser(res?.data));
     } catch (error) {
       if (error.response?.status === 401) {
@@ -37,10 +34,7 @@ const Layout = () => {
 
   const getConnections = async () => {
     try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/user/connections`,
-        { withCredentials: true },
-      );
+      const response = await api.get(`/user/connections`);
       dispatch(addConnections(response?.data));
     } catch (error) {
       console.error(error);
@@ -54,7 +48,14 @@ const Layout = () => {
     if (!connectedUsers) {
       getConnections();
     }
-  }, []);
+    return () => {
+      try {
+        api.patch("/status/update/offline", {});
+      } catch (error) {
+        console.error(error);
+      }
+    };
+  }, [userData]);
 
   useEffect(() => {
     // Logic: If user IS logged in AND they are sitting on the home page "/"

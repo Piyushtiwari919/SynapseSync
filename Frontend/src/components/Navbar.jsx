@@ -1,4 +1,3 @@
-import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { removeUser } from "../../store/userSlice.js";
@@ -6,6 +5,8 @@ import { LogOut, User, Users, Bell, Home, PlusSquare } from "lucide-react";
 import { removeConnection } from "../../store/connectionSlice.js";
 import { removeFeed } from "../../store/feedSlice.js";
 import { removeFeedUsers } from "../../store/exploreSlice.js";
+import api from "../utils/axiosClient.js";
+import { MessageCircleMore } from "lucide-react";
 
 const NavBar = () => {
   const dispatch = useDispatch();
@@ -23,11 +24,8 @@ const NavBar = () => {
   const handleLogout = async () => {
     try {
       closeMenu();
-      await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/logout`,
-        {},
-        { withCredentials: true }
-      );
+      await api.patch("/status/update/offline", {});
+      await api.post(`/logout`, {});
       dispatch(removeUser());
       dispatch(removeConnection());
       dispatch(removeFeed());
@@ -102,6 +100,7 @@ const NavBar = () => {
                 label="Notifications"
                 hasBadge={true}
               />
+              <NavItem to={"/messages"} icon={MessageCircleMore} label="Messages"/>
             </div>
           )}
 
