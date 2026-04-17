@@ -1,4 +1,3 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { addUser } from "../../store/userSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -14,6 +13,7 @@ import {
   X,
   CheckCircle,
 } from "lucide-react";
+import api from "../utils/axiosClient.js";
 
 const EditProfile = () => {
   // --- LOGIC (UNTOUCHED) ---
@@ -94,12 +94,11 @@ const EditProfile = () => {
         formData.append("avatar", avatar);
       }
 
-      const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/profile/edit`,
+      const response = await api.post(
+        `/profile/edit`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
-          withCredentials: true,
         }
       );
 
@@ -235,6 +234,7 @@ const EditProfile = () => {
                   <input
                     type="text"
                     name="firstName"
+                    id="firstname"
                     value={userData.firstName}
                     onChange={handleInput}
                     className="w-full bg-zinc-900/50 border border-zinc-700 rounded-xl pl-10 pr-4 py-3 text-white text-sm focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500 outline-none transition-all placeholder:text-zinc-700"
@@ -249,6 +249,7 @@ const EditProfile = () => {
                 <input
                   type="text"
                   name="lastName"
+                  id="lastname"
                   value={userData.lastName}
                   onChange={handleInput}
                   className="w-full bg-zinc-900/50 border border-zinc-700 rounded-xl px-4 py-3 text-white text-sm focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500 outline-none transition-all placeholder:text-zinc-700"

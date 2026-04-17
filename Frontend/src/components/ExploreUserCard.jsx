@@ -1,7 +1,7 @@
-import axios from "axios";
 import { UserPlus, Sparkles, Hourglass } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import api from "../utils/axiosClient.js";
 
 const ExploreUserCard = ({ user }) => {
   const [requestState, setRequestState] = useState(false);
@@ -10,12 +10,11 @@ const ExploreUserCard = ({ user }) => {
       {
         /*Do new connection with user._id */
       }
-      const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/request/send/interested/${
+      const response = await api.post(
+        `/request/send/interested/${
           user._id
         }`,
         {},
-        { withCredentials: true }
       );
       // console.log(response);
 

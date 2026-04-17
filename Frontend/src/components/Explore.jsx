@@ -1,9 +1,9 @@
-import axios from "axios";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addFeedUsers } from "../../store/exploreSlice.js";
 import ExploreErrorState from "./ExploreErrorState.jsx";
 import ExploreUserCard from "./ExploreUserCard.jsx";
+import api from "../utils/axiosClient.js";
 
 const Explore = () => {
   const [error, setError] = useState(false);
@@ -14,11 +14,8 @@ const Explore = () => {
 
   const fetchPeople = async () => {
     try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/explore`,
-        {
-          withCredentials: true,
-        }
+      const response = await api.get(
+        `/explore`,
       );
 
       dispatch(addFeedUsers(response.data));

@@ -16,7 +16,7 @@ const ProfileImage = ({ user, handleImageVisibility }) => {
           </div>
         </button>
         <img
-          src={user.profileImageUrl}
+          src={user?.profileImageUrl}
           alt="Profile"
           className="max-h-[80vh] w-auto max-w-full rounded-lg object-contain shadow-[0_0_40px_-10px_rgba(0,0,0,0.5)] ring-1 ring-white/10"
         />

@@ -1,20 +1,11 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { addUser } from "../../store/userSlice.js";
-import {
-  Mail,
-  Lock,
-  AlertCircle,
-  ArrowLeft,
-  Loader2,
-  Eye,
-  EyeOff,
-} from "lucide-react"; // Added icons for UX
+import { Mail, Lock, AlertCircle, ArrowLeft, Eye, EyeOff } from "lucide-react"; // Added icons for UX
+import api from "../utils/axiosClient.js";
 
 const Login = () => {
-  // --- 1. PRESERVED LOGIC (Do not touch) ---
   const [emailId, setEmailId] = useState("");
   const [password, setPassword] = useState("");
   const [isVisible, setIsVisible] = useState(false);
@@ -37,12 +28,10 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/login`,
-        { emailId, password },
-        { withCredentials: true }
-      );
+      const res = await api.post(`/login`, { emailId, password });
+      //console.log(res);
       dispatch(addUser(res?.data?.user));
+
       setError("");
       navigate("/feed");
     } catch (error) {

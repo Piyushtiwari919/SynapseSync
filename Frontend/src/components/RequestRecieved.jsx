@@ -6,6 +6,7 @@ import UserRequestSkeleton from "./UserRequestSkeleton.jsx";
 import ErrorState from "./ErrorState.jsx";
 import EmptyRequestState from "./EmptyRequestState.jsx";
 import UserRequestCard from "./UserRequestRecievedCard.jsx";
+import api from "../utils/axiosClient.js";
 
 const RequestRecieved = () => {
   const [isError, setIsError] = useState(false);
@@ -19,9 +20,8 @@ const RequestRecieved = () => {
   const getRequestsRecieved = async () => {
     try {
       setIsLoading(true);
-      const res = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/user/request/received`,
-        { withCredentials: true },
+      const res = await api.get(
+        `/user/request/received`,
       );
 
       setIsError(false);

@@ -1,4 +1,3 @@
-import axios from "axios";
 import { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
@@ -16,6 +15,7 @@ import FeedCard from "./FeedCard.jsx";
 import FeedCardSkeleton from "./FeedCardSkeleton.jsx";
 import CreatePostWidget from "./CreatePostWidget.jsx";
 import { addFeed } from "../../store/feedSlice.js";
+import api from "../utils/axiosClient.js";
 
 const Feed = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -29,9 +29,9 @@ const Feed = () => {
   // Fetch Logic
   const getFeed = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/feed`, {
-        withCredentials: true,
-      });
+      const res = await api.get(`/feed`);
+      api.patch("/status/update/online", {});
+          
       dispatch(addFeed(res?.data));
     } catch (error) {
       console.error(error);
@@ -155,20 +155,20 @@ const Feed = () => {
                     <FeedCard
                       key={feed._id}
                       feed={feed}
-                      isLoggedInUser={feed?.userId._id === user._id || false}
+                      isLoggedInUser={feed?.userId._id === user?._id || false}
                     />
                   ))}
                   {moreFeed?.map((feed) => (
                     <FeedCard
                       key={feed._id}
                       feed={feed}
-                      isLoggedInUser={feed?.userId._id === user._id}
+                      isLoggedInUser={feed?.userId._id === user?._id}
                     />
                   ))}
                 </>
               ) : (
                 feedForUser?.map((feed) => (
-                  <FeedCard feed={feed} key={feed._id}  />
+                  <FeedCard feed={feed} key={feed._id} />
                 ))
               )}
             </div>

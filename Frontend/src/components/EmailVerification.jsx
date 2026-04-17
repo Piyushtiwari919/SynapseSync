@@ -12,6 +12,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import AlreadyVerified from "./AlreadyVerified.jsx";
+import api from "../utils/axiosClient.js";
 
 const EmailVerify = () => {
   const navigate = useNavigate();
@@ -48,10 +49,9 @@ const EmailVerify = () => {
     try {
       setIsLoading(true);
       setError("");
-      const res = await axios.post(
+      const res = await api.post(
         `${import.meta.env.VITE_BACKEND_URL}/otp/send`,
         {},
-        { withCredentials: true },
       );
 
       await new Promise((resolve) => setTimeout(resolve, 1500));
@@ -80,10 +80,9 @@ const EmailVerify = () => {
       setIsLoading(true);
       setError("");
 
-      await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/otp/verify`,
+      await api.post(
+        `/otp/verify`,
         { otp },
-        { withCredentials: true },
       );
 
       await new Promise((resolve) => setTimeout(resolve, 1500));
@@ -185,6 +184,7 @@ const EmailVerify = () => {
               <div className="relative group">
                 <input
                   type="text"
+                  id="otp"
                   value={otp}
                   onChange={(e) => {
                     // Only allow numbers

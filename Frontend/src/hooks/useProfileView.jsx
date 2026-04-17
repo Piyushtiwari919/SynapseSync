@@ -1,10 +1,10 @@
 import axios from "axios";
+import api from "../utils/axiosClient.js";
 
 const useProfileView = async (userId) => {
   try {
-    const response = await axios.get(
-      `${import.meta.env.VITE_BACKEND_URL}/profile/visit/${userId}`,
-      { withCredentials: true }
+    const response = await api.get(
+      `/profile/visit/${userId}`,
     );
     return response;
   } catch (error) {

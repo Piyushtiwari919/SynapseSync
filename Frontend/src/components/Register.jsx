@@ -1,4 +1,3 @@
-import axios from "axios";
 import { useState } from "react";
 import { addUser } from "../../store/userSlice";
 import { useDispatch } from "react-redux";
@@ -16,6 +15,7 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react";
+import api from "../utils/axiosClient.js";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -95,14 +95,13 @@ const Register = () => {
       // }
       // console.log("--------------------------");
 
-      const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/register`,
+      const response = await api.post(
+        `/register`,
         formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-          withCredentials: true,
         }
       );
 
@@ -284,6 +283,7 @@ const Register = () => {
                 <input
                   type={isVisible ? "text" : "password"}
                   name="password"
+                  id="password"
                   value={userData.password}
                   onChange={handleInput}
                   className="w-full bg-zinc-900/50 border border-zinc-700 rounded-xl pl-10 pr-12 py-3 text-white focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500 outline-none transition-all"

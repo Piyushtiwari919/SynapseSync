@@ -1,4 +1,3 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
@@ -10,6 +9,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { addPosts } from "../../store/postSlice.js";
+import api from "../utils/axiosClient.js";
 
 const EditPost = () => {
   const { postId } = useParams();
@@ -39,9 +39,8 @@ const EditPost = () => {
 
         const userId = user?._id;
 
-        const response = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/post/${userId}`,
-          { withCredentials: true },
+        const response = await api.get(
+          `/post/${userId}`,
         );
 
         dispatch(addPosts(response?.data));
@@ -70,10 +69,9 @@ const EditPost = () => {
     try {
       setIsSubmitting(true);
 
-      await axios.patch(
-        `${import.meta.env.VITE_BACKEND_URL}/post/edit/${postId}`,
+      await api.patch(
+        `/post/edit/${postId}`,
         { description },
-        { withCredentials: true },
       );
 
       navigate(-1);

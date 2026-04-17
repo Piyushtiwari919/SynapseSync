@@ -1,10 +1,10 @@
-import axios from "axios";
 import { Grid, Loader2, PlusSquare, RotateCcw } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { addPosts } from "../../store/postSlice";
 import FeedCard from "./FeedCard.jsx";
+import api from "../utils/axiosClient.js";
 const UserPosts = ({ userId, isLoggedInUser }) => {
   const [isLoading, setIsLoading] = useState(true);
   const dispatch = useDispatch();
@@ -12,12 +12,11 @@ const UserPosts = ({ userId, isLoggedInUser }) => {
   const user = useSelector((store) => store.user);
   const getPosts = async () => {
     try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/post/${userId}`,
-        { withCredentials: true },
+      const response = await api.get(
+        `/post/${userId}`,
       );
       //console.log(response);
-      dispatch(addPosts(response.data));
+      dispatch(addPosts(response?.data));
     } catch (error) {
       console.error(error);
     } finally {

@@ -1,7 +1,7 @@
-import axios from "axios";
 import { AlertTriangle } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { removePosts } from "../../store/postSlice.js";
+import api from "../utils/axiosClient.js";
 
 const DeletePost = ({ showDelete, setShowDelete, feed }) => {
   const dispatch = useDispatch();
@@ -9,14 +9,13 @@ const DeletePost = ({ showDelete, setShowDelete, feed }) => {
 
     try {
       e.preventDefault();
-      const response = await axios.delete(
-        `${import.meta.env.VITE_BACKEND_URL}/post/delete`,
+      const response = await api.delete(
+        `/post/delete`,
         {
           data: {
             postId: feed?._id,
             userId: feed?.userId?._id,
           },
-          withCredentials: true,
         },
       );
       setShowDelete(false);

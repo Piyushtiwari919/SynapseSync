@@ -1,4 +1,3 @@
-import axios from "axios";
 import { UserCheck, X } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { useState } from "react";
@@ -6,6 +5,7 @@ import { removeRequestRecieved } from "../../store/requestSlice.js";
 import { addProfileView } from "../../store/stateSlice.js";
 import useProfileView from "../hooks/useProfileView.jsx";
 import { Link, useNavigate } from "react-router-dom";
+import api from "../utils/axiosClient.js";
 
 const UserRequestCard = ({ user }) => {
   const [toast, setToast] = useState(false);
@@ -15,10 +15,9 @@ const UserRequestCard = ({ user }) => {
   const { firstName, profileImageUrl, about, _id } = user?.fromUserId || {};
   const handleOnAccept = async () => {
     try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/request/review/accepted/${_id}`,
+      const response = await api.post(
+        `/request/review/accepted/${_id}`,
         {},
-        { withCredentials: true },
       );
       setToastMesssage("Connection accepted Successfull");
       setToast(true);
@@ -41,10 +40,9 @@ const UserRequestCard = ({ user }) => {
 
   const handleOnReject = async () => {
     try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/request/review/rejected/${_id}`,
+      const response = await api.post(
+        `/request/review/rejected/${_id}`,
         {},
-        { withCredentials: true },
       );
       setToast(true);
       setToastMesssage("User Rejected Successfull");

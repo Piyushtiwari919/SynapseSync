@@ -1,4 +1,3 @@
-import axios from "axios";
 import {
   Heart,
   MessageCircle,
@@ -12,6 +11,7 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import DeletePost from "./DeletePost.jsx";
+import api from "../utils/axiosClient.js";
 
 const FeedCard = ({ feed, isLoggedInUser }) => {
   const [showInfo, setShowInfo] = useState(false);
@@ -44,11 +44,7 @@ const FeedCard = ({ feed, isLoggedInUser }) => {
         ? "/post/update/dislike"
         : "/post/update/like";
 
-      await axios.patch(
-        `${import.meta.env.VITE_BACKEND_URL}${endpoint}`,
-        { postId: feed?._id },
-        { withCredentials: true },
-      );
+      await api.patch(`${endpoint}`, { postId: feed?._id });
       // Success! We don't need to do anything else.
     } catch (error) {
       // C. Rollback: If API fails, revert the UI change

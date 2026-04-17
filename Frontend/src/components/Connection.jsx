@@ -1,4 +1,3 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addConnections } from "../../store/connectionSlice.js";
@@ -7,6 +6,7 @@ import { Search, Users, Sparkles } from "lucide-react"; // Added Sparkles for 'h
 import EmptyState from "./EmptyConnectionState.jsx";
 import ErrorState from "./ErrorState.jsx";
 import ConnectionShimmerCard from "./ConnectionShimmerCard.jsx";
+import api from "../utils/axiosClient.js";
 
 const Connection = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -17,9 +17,7 @@ const Connection = () => {
 
   const getConnections = async () => {
     try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/user/connections`,
-        { withCredentials: true },
+      const response = await api.get(`/user/connections`,
       );
       dispatch(addConnections(response?.data));
     } catch (error) {

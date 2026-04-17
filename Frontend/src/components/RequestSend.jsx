@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
 import { addRequestsSend } from "../../store/requestSlice";
 import UserRequestSkeleton from "./UserRequestSkeleton.jsx";
 import ErrorState from "./ErrorState.jsx";
 import EmptyRequestState from "./EmptyRequestState.jsx";
 import UserRequestSendCard from "./UserRequestSendCard.jsx";
+import api from "../utils/axiosClient.js";
 
 const RequestSend = () => {
   const [isError, setIsError] = useState(false);
@@ -19,9 +19,8 @@ const RequestSend = () => {
   const getRequestsSend = async () => {
     try {
       setIsLoading(true);
-      const res = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/user/request/send`,
-        { withCredentials: true },
+      const res = await api.get(
+        `/user/request/send`,
       );
 
       setIsError(false);

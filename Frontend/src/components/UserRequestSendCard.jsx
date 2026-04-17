@@ -1,9 +1,9 @@
-import axios from "axios";
 import { UserMinus, Clock, CheckCircle2, AlertCircle } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { removeRequestSend } from "../../store/requestSlice";
 import { useState } from "react";
+import api from "../utils/axiosClient.js";
 
 const UserRequestSendCard = ({ user }) => {
   const dispatch = useDispatch();
@@ -16,10 +16,9 @@ const UserRequestSendCard = ({ user }) => {
 
   const handleRequestWithdraw = async () => {
     try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/request/withdraw/${_id}`,
+      const response = await api.post(
+        `/request/withdraw/${_id}`,
         {},
-        { withCredentials: true },
       );
       setToastMesssage("Request Withdrawn");
       setToast(true);

@@ -1,8 +1,8 @@
-import axios from "axios";
 import { useState, useRef } from "react";
 import { Image as ImageIcon, X, Send, Loader2, Smile } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import api from "../utils/axiosClient.js";
 
 const CreatePost = () => {
   const user = useSelector((store) => store.user);
@@ -54,12 +54,11 @@ const CreatePost = () => {
         formData.append("postImage", postImage);
       }
 
-      const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/post/create`,
+      const response = await api.post(
+        `/post/create`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
-          withCredentials: true,
         },
       );
 
@@ -183,6 +182,7 @@ const CreatePost = () => {
                 </button>
                 <input
                   type="file"
+                  id="file"
                   ref={fileInputRef}
                   onChange={handleImage}
                   accept="image/*"
