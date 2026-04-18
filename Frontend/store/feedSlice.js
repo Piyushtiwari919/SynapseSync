@@ -16,9 +16,15 @@ const feedSlice = createSlice({
       state.userPrefrencePosts = null;
       state.extraPosts = null;
     },
+    removeDeletedPost: (state, action) => {
+      const newState = state.userPrefrencePosts.filter((post) => {
+        return post._id !== action.payload;
+      });
+      state.userPrefrencePosts = newState;
+    },
   },
 });
 
-export const { addFeed, removeFeed } = feedSlice.actions;
+export const { addFeed, removeFeed, removeDeletedPost } = feedSlice.actions;
 
 export default feedSlice.reducer;

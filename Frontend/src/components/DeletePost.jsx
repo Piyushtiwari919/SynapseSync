@@ -1,25 +1,28 @@
 import { AlertTriangle } from "lucide-react";
 import { useDispatch } from "react-redux";
-import { removePosts } from "../../store/postSlice.js";
+import { useLocation } from "react-router-dom";
 import api from "../utils/axiosClient.js";
+import { removeDeletedPost } from "../../store/feedSlice.js";
+import { removePosts } from "../../store/postSlice.js";
 
 const DeletePost = ({ showDelete, setShowDelete, feed }) => {
   const dispatch = useDispatch();
+  const location = useLocation();
   const handlePostDelete = async (e) => {
-
     try {
       e.preventDefault();
-      const response = await api.delete(
-        `/post/delete`,
-        {
-          data: {
-            postId: feed?._id,
-            userId: feed?.userId?._id,
-          },
+      const response = await api.delete(`/post/delete`, {
+        data: {
+          postId: feed?._id,
+          userId: feed?.userId?._id,
         },
-      );
+      });
       setShowDelete(false);
-      dispatch(removePosts(feed?._id));
+      if (location.pathname === "/feed") {
+        dispatch(removeDeletedPost(feed?._id));
+      } else if (location.pathname === "/profile") {
+        dispatch(removePosts(feed?._id));
+      }
     } catch (error) {
       console.log(error);
     }

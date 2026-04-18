@@ -307,6 +307,7 @@ const Register = () => {
                 </label>
                 <input
                   type="number"
+                  id="age"
                   name="age"
                   value={userData.age}
                   onChange={handleInput}
