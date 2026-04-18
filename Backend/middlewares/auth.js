@@ -27,7 +27,7 @@ export const userAuth = async (req, res, next) => {
 
 export const requireVerification = (req, res, next) => {
   try {
-    if (!req.user.isVerified) {
+    if (!req.user?.isVerified) {
       throw new Error(
         "Action restricted. Please verify your email to post or comment."
       );

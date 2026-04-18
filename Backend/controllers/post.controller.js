@@ -73,7 +73,7 @@ const createPostContoller = async (req, res) => {
 
     //console.log(userPost);
 
-    return res.status(200).send("Post Created Successfully");
+    return res.status(200).json({ message: "Post Created Successfully" });
   } catch (error) {
     return res.status(400).send(`${error.message}`);
   }
@@ -145,6 +145,7 @@ const deletePost = async (req, res) => {
       return res.status(403).send("UnAuthorized User");
     }
     await Post.findByIdAndDelete({ _id: postId });
+    return res.status(200).json({ message: "Successfully deleted the post" });
   } catch (error) {
     return res.status(400).send(`${error.message}`);
   }

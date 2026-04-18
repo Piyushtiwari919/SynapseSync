@@ -81,7 +81,7 @@ const updateSeenChats = async (req, res) => {
         new: true,
       },
     );
-    return res.status(200).send("DB Updated Successfully");
+    return res.status(200).json({ message: "DB Updated Successfully" });
   } catch (error) {
     return res.status(400).send(`${error.message}`);
   }
