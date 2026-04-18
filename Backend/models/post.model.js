@@ -1,5 +1,20 @@
 import { Schema, model } from "mongoose";
 
+const commentSchema = new Schema(
+  {
+    content: {
+      type: String,
+      required: true,
+    },
+    author: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+  },
+  { timestamps: true }
+);
+
 const postSchema = new Schema(
   {
     userId: {
@@ -23,8 +38,9 @@ const postSchema = new Schema(
         },
       },
     ],
+    comments: [commentSchema],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 postSchema.index({ userId: 1, createdAt: -1 });

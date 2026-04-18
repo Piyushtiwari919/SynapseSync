@@ -16,7 +16,7 @@ import {
 import api from "../utils/axiosClient.js";
 
 const EditProfile = () => {
-  // --- LOGIC (UNTOUCHED) ---
+  // --- LOGIC ---
   const user = useSelector((store) => store.user);
   const navigate = useNavigate();
   const [userData, setUserData] = useState({
@@ -116,7 +116,7 @@ const EditProfile = () => {
     }
   };
 
-  // --- DESIGN (SENIOR UPGRADE) ---
+  // --- DESIGN ---
   return (
     <div className="min-h-screen bg-[#09090b] flex items-center justify-center p-4 md:p-8 relative">
       {/* Background Decor */}
@@ -271,6 +271,7 @@ const EditProfile = () => {
                   />
                   <input
                     type="number"
+                    id="age"
                     name="age"
                     value={userData.age}
                     onChange={handleInput}
