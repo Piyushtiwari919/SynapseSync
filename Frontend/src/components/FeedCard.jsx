@@ -16,6 +16,7 @@ import api from "../utils/axiosClient.js";
 const FeedCard = ({ feed, isLoggedInUser }) => {
   const [showInfo, setShowInfo] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
+  const [showComment, setShowComment] = useState(false);
   const navigate = useNavigate();
   const user = useSelector((store) => store.user);
 
@@ -194,6 +195,7 @@ const FeedCard = ({ feed, isLoggedInUser }) => {
             <div className="flex items-center gap-2 group/like">
               <button
                 onClick={toggleLike}
+                title="like"
                 className={`p-2 rounded-full transition-all active:scale-90 hover:cursor-pointer ${
                   liked
                     ? "text-red-500 bg-red-500/10"
@@ -219,7 +221,7 @@ const FeedCard = ({ feed, isLoggedInUser }) => {
               )}
             </div>
 
-            <button className="flex items-center gap-2 text-zinc-400 hover:text-cyan-400 transition-colors group/comment hover:cursor-pointer">
+            <button className="flex items-center gap-2 text-zinc-400 hover:text-cyan-400 transition-colors group/comment hover:cursor-pointer" onClick={()=> setShowComment(!showComment)}title="comment">
               <div className="p-2 rounded-full group-hover/comment:bg-cyan-500/10 transition-colors">
                 <MessageCircle size={22} />
               </div>
