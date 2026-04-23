@@ -133,6 +133,13 @@ const getFeed = async (req, res) => {
       .skip(skip)
       .limit(limit)
       .populate("userId", "firstName lastName profileImageUrl")
+      .populate({
+        path: "comments",
+        populate: {
+          path: "authorId",
+          select: "firstName profileImageUrl _id isVerified",
+        },
+      })
       .lean();
 
     let morePosts = [];
@@ -149,6 +156,13 @@ const getFeed = async (req, res) => {
         .skip(skip)
         .limit(limit - allPosts.length)
         .populate("userId", "firstName lastName profileImageUrl")
+        .populate({
+          path: "comments",
+          populate: {
+            path: "authorId",
+            select: "firstName lastName profileImageUrl _id isVerified",
+          },
+        })
         .lean();
     }
 
