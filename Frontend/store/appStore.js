@@ -7,6 +7,7 @@ import requestReducer from "./requestSlice.js";
 import exploreReducer from "./exploreSlice.js";
 import postReducer from "./postSlice.js";
 import chatSlice from "./chatSlice.js";
+import commentSlice from "./commentSlice.js";
 
 const appStore = configureStore({
   reducer: {
@@ -18,6 +19,7 @@ const appStore = configureStore({
     explore: exploreReducer,
     posts: postReducer,
     chats: chatSlice,
+    comments: commentSlice,
   },
 });
 

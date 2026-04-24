@@ -20,7 +20,6 @@ const chatSlice = createSlice({
   },
 });
 
-
-export const {addChats, removeChats} = chatSlice.actions;
+export const { addChats, removeChats } = chatSlice.actions;
 
 export default chatSlice.reducer;
