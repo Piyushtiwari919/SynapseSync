@@ -151,10 +151,144 @@ const deletePost = async (req, res) => {
   }
 };
 
+const createComment = async (req, res) => {
+  try {
+    const user = req.user;
+    const { content } = req.body;
+    const { postId } = req.params;
+    if (!postId) {
+      throw new Error("Post id not provided");
+    }
+    if (!content || content.trim() === "") {
+      throw new Error("Please type message");
+    }
+
+    const sanitizedComment = content.trim();
+
+    const post = await Post.findById(postId);
+    if (!post) {
+      throw new Error("No post found with the post id");
+    }
+
+    post.comments.push({ content: sanitizedComment, authorId: user?._id });
+    await post.populate({
+      path: "comments.authorId",
+      select: "firstName lastName profileImageUrl _id isVerified",
+    });
+    await post.save();
+
+    return res.status(200).json({ message: "Comment Successfull", post: post });
+  } catch (error) {
+    return res.status(400).send(`${error.message}`);
+  }
+};
+
+const updateComment = async (req, res) => {
+  try {
+    const { postId, commentId } = req.params;
+    const { content } = req.body;
+    const userId = req?.user?._id;
+    if (!postId) {
+      throw new Error("Post id not provided");
+    }
+    if (!commentId) {
+      throw new Error("Comment id not provided");
+    }
+    if (!content || content.trim() === "") {
+      return res
+        .status(400)
+        .json({ success: false, message: "Comment text cannot be empty" });
+    }
+
+    const sanitizedComment = content.trim();
+
+    const updatedPost = await Post.findOneAndUpdate(
+      {
+        _id: postId,
+        comments: {
+          $elemMatch: {
+            _id: commentId,
+            authorId: userId,
+          },
+        },
+      },
+      {
+        $set: { "comments.$.content": sanitizedComment },
+      },
+      {
+        new: true,
+        runValidators: true,
+      },
+    );
+
+    if (!updatedPost) {
+      return res.status(404).json({
+        success: false,
+        message: "Comment not found or you do not have permission to edit it",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Comment updated successfully",
+    });
+  } catch (error) {
+    return res.status(400).send(`${error.message}`);
+  }
+};
+
+const deleteComment = async (req, res) => {
+  try {
+    const { postId, commentId } = req.params;
+
+    const userId = req?.user?._id;
+
+    if (!postId) {
+      throw new Error("Post id not provided");
+    }
+
+    if (!commentId) {
+      throw new Error("Comment id not provided");
+    }
+
+    const post = await Post.findOne({
+      _id: postId,
+      comments: {
+        $elemMatch: {
+          _id: commentId,
+          authorId: userId,
+        },
+      },
+    });
+
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: "Comment not found or you do not have permission to delete it",
+      });
+    }
+
+    const filteredComments = post.comments.filter((comment) => {
+      return comment._id.toString() !== commentId.toString();
+    });
+
+    post.comments = filteredComments;
+    await post.save();
+    return res
+      .status(200)
+      .json({ message: "Comment deleted succesfully", updatedPost: post });
+  } catch (error) {
+    return res.status(400).send(`${error.message}`);
+  }
+};
+
 export {
   getUserPosts,
   createPostContoller,
   editPostController,
   updatePostContoller,
   deletePost,
+  createComment,
+  updateComment,
+  deleteComment,
 };
