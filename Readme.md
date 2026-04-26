@@ -1,4 +1,5 @@
 # SynapseSync
+## Updating Soon
 
 SynapseSync is a professional networking platform designed to facilitate meaningful professional connections, real-time communication, and content sharing.
 
