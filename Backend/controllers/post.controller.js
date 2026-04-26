@@ -19,6 +19,10 @@ const getUserPosts = async (req, res) => {
       .skip(skip)
       .limit(limit)
       .populate("userId", "firstName lastName profileImageUrl")
+      .populate({
+        path: "comments.authorId",
+        select: "firstName lastName profileImageUrl _id isVerified",
+      })
       .lean();
 
     return res.status(200).send(userPosts);
