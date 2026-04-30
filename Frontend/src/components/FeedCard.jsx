@@ -8,30 +8,32 @@ import {
   BadgeX,
 } from "lucide-react";
 import { useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import DeletePost from "./DeletePost.jsx";
 import api from "../utils/axiosClient.js";
+import Comment from "./Comment.jsx";
+import CommentCard from "./CommentCard.jsx";
+import { useEffect } from "react";
+import { addComments, removeComment } from "../../store/commentSlice.js";
+import VerifyToComment from "./VerifyToComment.jsx";
 
 const FeedCard = ({ feed, isLoggedInUser }) => {
   const [showInfo, setShowInfo] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
   const [showComment, setShowComment] = useState(false);
+  const [visibleCommentsCount, setVisibleCommentsCount] = useState(4);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const user = useSelector((store) => store.user);
+  const postComments = useSelector((store) => store.comments);
 
-  // 1. Initialize state based on the PROPS immediately.
-  // This creates a single source of truth that we can toggle instantly.
   const [liked, setLiked] = useState(
     feed?.likes?.some((like) => like.userId === user?._id) || false,
   );
-
-  // 2. Track the count locally so numbers go up/down instantly (Optimistic UI)
   const [likeCount, setLikeCount] = useState(feed?.likes?.length || 0);
 
   const toggleLike = async () => {
-    // A. Optimistic Update: Update UI *before* the API call finishes.
-    // This makes the app feel "instant"
     const previousState = liked;
     const previousCount = likeCount;
 
@@ -39,24 +41,38 @@ const FeedCard = ({ feed, isLoggedInUser }) => {
     setLikeCount(previousState ? previousCount - 1 : previousCount + 1);
 
     try {
-      // B. Determine endpoint based on current state
-      // If currently liked -> we want to dislike (and vice versa)
       const endpoint = previousState
         ? "/post/update/dislike"
         : "/post/update/like";
-
       await api.patch(`${endpoint}`, { postId: feed?._id });
-      // Success! We don't need to do anything else.
     } catch (error) {
-      // C. Rollback: If API fails, revert the UI change
       setLiked(previousState);
       setLikeCount(previousCount);
       console.error("Like failed:", error);
     }
   };
 
+  const toggleCommentVisibility = () => {
+    setShowComment(!showComment);
+    dispatch(addComments(feed?.comments));
+  };
+
+  const onCommentPosted = (data) => {
+    dispatch(addComments(data.comments));
+  };
+
+  const onDeleteSuccess = (commentId) => {
+    dispatch(dispatch(removeComment(commentId)));
+  };
+
+  useEffect(() => {
+    if (!showComment) {
+      setVisibleCommentsCount(4);
+    }
+  }, [showComment]);
+
   return (
-    <div className="w-full relative bg-[#121214] border border-zinc-800 rounded-2xl overflow-hidden mb-6 shadow-lg transition-all hover:border-zinc-700 group">
+    <div className="w-full relative bg-[#121214] border border-zinc-800 rounded-2xl mb-6 shadow-lg transition-all hover:border-zinc-700 group flex flex-col">
       {showDelete && (
         <DeletePost
           setShowDelete={setShowDelete}
@@ -64,6 +80,8 @@ const FeedCard = ({ feed, isLoggedInUser }) => {
           feed={feed}
         />
       )}
+
+      {/* HEADER */}
       <div className="flex items-center justify-between p-4 relative z-10">
         {!isLoggedInUser && feed?.userId?._id !== user?._id ? (
           <div className="flex items-center gap-3">
@@ -81,7 +99,6 @@ const FeedCard = ({ feed, isLoggedInUser }) => {
                 />
               </div>
             </Link>
-
             <div className="flex flex-col">
               <Link
                 to={`/profile/${feed?.userId?._id}`}
@@ -109,7 +126,6 @@ const FeedCard = ({ feed, isLoggedInUser }) => {
                 />
               </div>
             </Link>
-
             <div className="flex flex-col">
               <Link
                 to={`/profile`}
@@ -125,6 +141,7 @@ const FeedCard = ({ feed, isLoggedInUser }) => {
             </div>
           </div>
         )}
+
         {isLoggedInUser && (
           <div className="relative">
             <button
@@ -157,7 +174,6 @@ const FeedCard = ({ feed, isLoggedInUser }) => {
                     />
                     <span>Edit Post</span>
                   </button>
-
                   <div className="h-px bg-zinc-800/50 mx-2"></div>
                   <button
                     className="w-full flex items-center gap-3 px-4 hover:cursor-pointer py-3 text-sm text-red-400 hover:bg-red-500/10 transition-colors text-left"
@@ -172,6 +188,8 @@ const FeedCard = ({ feed, isLoggedInUser }) => {
           </div>
         )}
       </div>
+
+      {/* POST CONTENT */}
       {feed.description && (
         <div className="px-4 pb-3">
           <p className="text-sm text-zinc-300 leading-relaxed whitespace-pre-wrap">
@@ -189,9 +207,10 @@ const FeedCard = ({ feed, isLoggedInUser }) => {
         </div>
       )}
 
-      <div className="p-4">
+      {/* FOOTER ACTIONS */}
+      <div className="p-4 flex flex-col">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4 sm:gap-6">
             <div className="flex items-center gap-2 group/like">
               <button
                 onClick={toggleLike}
@@ -210,20 +229,25 @@ const FeedCard = ({ feed, isLoggedInUser }) => {
               </button>
               {likeCount > 0 && (
                 <span
-                  className={`text-sm font-medium ${
-                    liked
-                      ? "text-red-400"
-                      : "text-zinc-500 group-hover/like:text-zinc-300"
-                  }`}
+                  className={`text-sm font-medium ${liked ? "text-red-400" : "text-zinc-500 group-hover/like:text-zinc-300"}`}
                 >
                   {likeCount}
                 </span>
               )}
             </div>
 
-            <button className="flex items-center gap-2 text-zinc-400 hover:text-cyan-400 transition-colors group/comment hover:cursor-pointer" onClick={()=> setShowComment(!showComment)}title="comment">
-              <div className="p-2 rounded-full group-hover/comment:bg-cyan-500/10 transition-colors">
-                <MessageCircle size={22} />
+            <button
+              className={`flex items-center gap-2 transition-colors group/comment hover:cursor-pointer ${showComment ? "text-cyan-400" : "text-zinc-400 hover:text-cyan-400"}`}
+              onClick={toggleCommentVisibility}
+              title="comment"
+            >
+              <div
+                className={`p-2 rounded-full transition-colors ${showComment ? "bg-cyan-500/10" : "group-hover/comment:bg-cyan-500/10"}`}
+              >
+                <MessageCircle
+                  size={22}
+                  className={showComment ? "fill-cyan-500/20" : ""}
+                />
               </div>
             </button>
 
@@ -240,8 +264,58 @@ const FeedCard = ({ feed, isLoggedInUser }) => {
         </div>
 
         {likeCount > 0 && (
-          <div className="mt-3 text-xs text-zinc-500 font-medium">
+          <div className="mt-2 px-1 text-xs text-zinc-500 font-medium">
             Liked by <span className="text-zinc-300">{likeCount} people</span>
+          </div>
+        )}
+
+        {showComment && (
+          <div className="mt-4 pt-4 border-t border-zinc-800/60 animate-in fade-in slide-in-from-top-2 duration-300 relative z-0">
+            {user?.isVerified ? (
+              <Comment postId={feed._id} onCommentPosted={onCommentPosted} />
+            ) : (
+              <VerifyToComment />
+            )}
+
+            <div className="mt-6 flex flex-col space-y-1">
+              {postComments?.length > 0 ? (
+                <>
+                  {/* 1. SLICE THE ARRAY: Only render up to visibleCommentsCount */}
+                  {postComments &&
+                    postComments
+                      .slice(0, visibleCommentsCount)
+                      .map((comment) => (
+                        <CommentCard
+                          key={comment._id}
+                          comment={comment}
+                          postId={feed._id}
+                          authorId={feed?.userId?._id}
+                          onDeleteSuccess={onDeleteSuccess}
+                        />
+                      ))}
+
+                  {visibleCommentsCount < postComments?.length && (
+                    <button
+                      onClick={() =>
+                        setVisibleCommentsCount((prev) => prev + 4)
+                      }
+                      className="mt-2 py-2 text-sm font-semibold text-zinc-400 hover:text-cyan-400 hover:bg-cyan-500/10 hover:cursor-pointer rounded-lg transition-colors flex items-center justify-center w-full"
+                    >
+                      View {postComments?.length - visibleCommentsCount} more
+                      comments
+                    </button>
+                  )}
+                </>
+              ) : (
+                /* EMPTY STATE */
+                <div className="text-center py-6 pb-4">
+                  <p className="text-sm text-zinc-500">No comments yet.</p>
+                  <p className="text-xs text-zinc-600 mt-1">
+                    Be the first to share your thoughts!
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
