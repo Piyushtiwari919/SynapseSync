@@ -33,7 +33,8 @@ api.interceptors.response.use(
     // Just pass the error straight back to the component so it can show a "Wrong Password" message.
     if (
       originalRequest.url.includes("/login") ||
-      originalRequest.url.includes("/auth/refresh")
+      originalRequest.url.includes("/auth/refresh") ||
+      originalRequest.url.includes("/logout")
     ) {
       return Promise.reject(error);
     }
@@ -81,7 +82,11 @@ api.interceptors.response.use(
         isRefreshing = false;
 
         //Only redirect if they ARE NOT already on the login page, register page or at the "/" url
-        if (window.location.pathname !== "/login" && window.location.pathname !== "/register" && window.location.pathname !== "/") {
+        if (
+          window.location.pathname !== "/login" &&
+          window.location.pathname !== "/register" &&
+          window.location.pathname !== "/"
+        ) {
           window.location.href = "/login";
         }
 
