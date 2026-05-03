@@ -16,13 +16,19 @@ import chatRouter from "./routes/chat.routes.js";
 import initializeSocket from "./chat/chat.socket.js";
 import statusRouter from "./routes/status.route.js";
 
+// --- ADD THIS SANITY CHECK LOG ---
+console.log("=== SERVER BOOTING ===");
+console.log("Allowed CORS Origin:", process.env.FRONTEND_URL);
+console.log("======================");
+
 const corsOptions = {
-  origin: "http://localhost:5173",
+  origin: process.env.FRONTEND_URL,
   credentials: true,
 };
 
-app.use(express.json());
 app.use(cors(corsOptions));
+
+app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static("./public"));
@@ -34,8 +40,8 @@ app.use("/", requestRouter);
 app.use("/", exploreRouter);
 app.use("/", postRouter);
 app.use("/", emailRouter);
-app.use("/",chatRouter);
-app.use("/",statusRouter);
+app.use("/", chatRouter);
+app.use("/", statusRouter);
 
 const server = http.createServer(app);
 initializeSocket(server);
