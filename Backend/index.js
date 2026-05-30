@@ -16,10 +16,10 @@ import chatRouter from "./routes/chat.routes.js";
 import initializeSocket from "./chat/chat.socket.js";
 import statusRouter from "./routes/status.route.js";
 
-// --- ADD THIS SANITY CHECK LOG ---
-console.log("=== SERVER BOOTING ===");
-console.log("Allowed CORS Origin:", process.env.FRONTEND_URL);
-console.log("======================");
+
+// console.log("=== SERVER BOOTING ===");
+// console.log("Allowed CORS Origin:", process.env.FRONTEND_URL);
+// console.log("======================");
 
 const corsOptions = {
   origin: process.env.FRONTEND_URL,
