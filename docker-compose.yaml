@@ -1,0 +1,27 @@
+version: '5.1'
+
+services:
+  server:
+    build: ./Backend
+    container_name: express-server
+    ports:
+      - "4000:4000"
+    networks:
+      - fullstack-net
+    env_file:
+      - ./Backend/.env
+    restart: unless-stopped
+  client:
+    build: ./Frontend
+    container_name: react-client
+    ports:
+      - "5174:3000"
+    networks:
+      - fullstack-net
+    depends_on:
+      - server
+    restart: unless-stopped
+
+networks:
+  fullstack-net:
+    driver: bridge
