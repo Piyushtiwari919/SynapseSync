@@ -10,7 +10,9 @@ import {
   updateComment,
   deleteComment,
 } from "../controllers/post.controller.js";
+
 import { upload } from "../middlewares/multer.js";
+import { validateUpload } from "../middlewares/validateUpload.middleware.js";
 
 const postRouter = Router();
 
@@ -21,6 +23,7 @@ postRouter.post(
   userAuth,
   requireVerification,
   upload.single("postImage"),
+  validateUpload,
   createPostContoller,
 );
 

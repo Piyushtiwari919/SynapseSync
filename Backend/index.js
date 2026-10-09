@@ -15,7 +15,7 @@ import emailRouter from "./routes/email.route.js";
 import chatRouter from "./routes/chat.routes.js";
 import initializeSocket from "./chat/chat.socket.js";
 import statusRouter from "./routes/status.route.js";
-
+import { errorHandler } from "./middlewares/error.middleware.js";
 
 // console.log("=== SERVER BOOTING ===");
 // console.log("Allowed CORS Origin:", process.env.FRONTEND_URL);
@@ -42,6 +42,7 @@ app.use("/", postRouter);
 app.use("/", emailRouter);
 app.use("/", chatRouter);
 app.use("/", statusRouter);
+app.use(errorHandler);
 
 const server = http.createServer(app);
 initializeSocket(server);

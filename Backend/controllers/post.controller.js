@@ -31,6 +31,45 @@ const getUserPosts = async (req, res) => {
   }
 };
 
+const createPostContoller = async (req, res, next) => {
+  try {
+    const loggedInUser = req.user;
+    const { description } = req.body;
+    //console.log(description);
+
+    if (!description) {
+      throw new Error("Description is Required");
+    }
+    if (description.length() > 2000) {
+      return res.status(413).json({
+        message: "Length of post description should not be more than 2000",
+      });
+    }
+    let postAvatar;
+    if (req.file) {
+      const isVideo = req.file.mimetype.startsWith("video/");
+
+      postAvatar = await uploadOnCloudinary(req.file.buffer, {
+        resourceType: isVideo ? "video" : "image",
+      });
+    }
+
+    const userPost = new Post({
+      userId: loggedInUser._id,
+      description: description,
+      imageUrl: postAvatar?.secure_url,
+    });
+
+    await userPost.save();
+
+    //console.log(userPost);
+
+    return res.status(200).json({ message: "Post Created Successfully" });
+  } catch (error) {
+    return next(error);
+  }
+};
+
 const editPostController = async (req, res) => {
   try {
     const loggedInUser = req.user;
@@ -41,43 +80,18 @@ const editPostController = async (req, res) => {
       return res.status(403).send(`UnAuthorized Task`);
     }
 
+    if (description.length() > 2000) {
+      return res.status(413).json({
+        message: "Length of post description should not be more than 2000",
+      });
+    }
+
     const updatedPost = await Post.findByIdAndUpdate(
       { _id: postId },
       { description: description },
     );
 
     return res.status(200).send(updatedPost);
-  } catch (error) {
-    return res.status(400).send(`${error.message}`);
-  }
-};
-
-const createPostContoller = async (req, res) => {
-  try {
-    const loggedInUser = req.user;
-    const { description } = req.body;
-    //console.log(description);
-
-    if (!description) {
-      throw new Error("Description is Required");
-    }
-    const postImageLocalPath = req?.file?.path;
-    let postAvatar;
-    if (postImageLocalPath) {
-      postAvatar = await uploadOnCloudinary(postImageLocalPath);
-    }
-
-    const userPost = new Post({
-      userId: loggedInUser._id,
-      description: description,
-      imageUrl: postAvatar?.url,
-    });
-
-    await userPost.save();
-
-    //console.log(userPost);
-
-    return res.status(200).json({ message: "Post Created Successfully" });
   } catch (error) {
     return res.status(400).send(`${error.message}`);
   }

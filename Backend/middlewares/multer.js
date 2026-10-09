@@ -1,13 +1,28 @@
 import multer from "multer";
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    return cb(null, "./public/tmp");
+const IMAGE_LIMIT = 5 * 1024 * 1024;
+const VIDEO_LIMIT = 25 * 1024 * 1024;
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+
+  limits: {
+    fileSize: VIDEO_LIMIT,
+    files: 1,
   },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    return cb(null, file.fieldname + "-" + uniqueSuffix);
+
+  fileFilter: (req, file, cb) => {
+    const isImage = file.mimetype.startsWith("image/");
+    const isVideo = file.mimetype.startsWith("video/");
+
+    if (!isImage && !isVideo) {
+      const error = new Error("Only images and videos are allowed.");
+      error.code = "INVALID_FILE_TYPE";
+      return cb(error);
+    }
+
+    return cb(null, true);
   },
 });
 
-export const upload = multer({ storage: storage });
+export { upload, IMAGE_LIMIT, VIDEO_LIMIT };

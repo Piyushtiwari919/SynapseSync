@@ -6,6 +6,7 @@ import {
 } from "../controllers/profile.controller.js";
 import { userAuth } from "../middlewares/auth.js";
 import { upload } from "../middlewares/multer.js";
+import { validateUploadSize } from "../middlewares/validateUpload.middleware.js";
 
 const router = express.Router();
 
@@ -17,7 +18,8 @@ router.post(
   "/profile/edit",
   userAuth,
   upload.single("avatar"),
-  handleProfileEdit
+  validateUploadSize,
+  handleProfileEdit,
 );
 
 export default router;

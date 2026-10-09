@@ -12,7 +12,7 @@ const commentSchema = new Schema(
       required: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const postSchema = new Schema(
@@ -25,6 +25,7 @@ const postSchema = new Schema(
     description: {
       type: String,
       trim: true,
+      maxLength: 2000,
     },
     imageUrl: {
       type: String,
@@ -37,6 +38,13 @@ const postSchema = new Schema(
           ref: "User",
         },
       },
+    ],
+    tags: [
+      {
+        type: String,
+        trim: true,
+        lowercase: true,
+      }
     ],
     comments: [commentSchema],
   },

@@ -7,7 +7,7 @@ import { getSanatizedUser } from "../utils/userSanatization.js";
 import uploadOnCloudinary from "../utils/cloudinary.js";
 const authController = {};
 
-authController.register = async (req, res) => {
+authController.register = async (req, res,next) => {
   try {
     validateSignUpData(req);
     const {
@@ -25,10 +25,14 @@ authController.register = async (req, res) => {
     if (userExist.length > 0) {
       throw new Error("Email already exist. Please Login");
     }
-    const avatarLocalPath = req?.file?.path;
+
     let avatar;
-    if (avatarLocalPath) {
-      avatar = await uploadOnCloudinary(avatarLocalPath);
+    if (req.file) {
+      const isVideo = req.file.mimetype.startsWith("video/");
+
+      avatar = await uploadOnCloudinary(req.file.buffer, {
+        resourceType: isVideo ? "video" : "image",
+      });
     }
     // console.log(avatar);
     const hasshedPassword = await bcrypt.hash(password, 10);
@@ -41,7 +45,7 @@ authController.register = async (req, res) => {
       about: about,
       age,
       gender,
-      profileImageUrl: avatar?.url,
+      profileImageUrl: avatar?.secure_url,
     });
     await user.save();
 
@@ -56,14 +60,14 @@ authController.register = async (req, res) => {
       expires: new Date(Date.now() + timeOfCookie),
       httpOnly: true,
       secure: true,
-      sameSite: "strict",
+      sameSite: "none",
     });
 
     const sanatizedUser = getSanatizedUser(user);
     return res.status(200).send(sanatizedUser);
     // return res.send("User Registered Successfully");
   } catch (error) {
-    return res.status(400).send(`ERROR: ${error.message}`);
+    return next(error);
   }
 };
 
@@ -101,14 +105,14 @@ authController.login = async (req, res) => {
       expires: new Date(Date.now() + timeOfAccessCookie),
       httpOnly: true,
       secure: true,
-      sameSite: "strict",
+      sameSite: "none",
     });
 
     res.cookie("refreshToken", refreshToken, {
       expires: new Date(Date.now() + timeOfRefreshCookie),
       httpOnly: true,
       secure: true,
-      sameSite: "strict",
+      sameSite: "none",
     });
 
     const sanatizedUser = getSanatizedUser(user);
@@ -121,19 +125,19 @@ authController.login = async (req, res) => {
 
 authController.logout = async (req, res) => {
   try {
-    const cookies = req.cookies;
-    const { refreshToken } = cookies;
-    const decodedMessage = jwt.verify(refreshToken, process.env.JWT_SECRET_KEY);
-    if (!decodedMessage) {
-      throw new Error("Something went wrong");
-    }
+    const cookieOptions = {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    };
 
     return res
-      .cookie("refreshToken", null, { expires: new Date(Date.now()) })
-      .cookie("accessToken", null, { expires: new Date(Date.now()) })
-      .send("Logged Out Successfully");
+      .clearCookie("refreshToken", cookieOptions)
+      .clearCookie("accessToken", cookieOptions)
+      .status(200)
+      .send({ message: "Logged Out Successfully" });
   } catch (error) {
-    return res.status(401).send(`ERROR: ${error.message}`);
+    return res.status(500).send(`ERROR: ${error.message}`);
   }
 };
 
@@ -166,7 +170,7 @@ authController.refreshUserToken = async (req, res) => {
       maxAge: timeOfAccessCookie,
       httpOnly: true,
       secure: true,
-      sameSite: "strict",
+      sameSite: "none",
     });
 
     return res.status(200).send("Access Token generated successfully");
