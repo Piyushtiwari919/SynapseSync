@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -23,16 +23,50 @@ const Feed = () => {
 
   // Redux Data
   const user = useSelector((store) => store.user);
-  const feedForUser = useSelector((store) => store.feed.userPrefrencePosts);
-  const moreFeed = useSelector((store) => store.feed.extraPosts);
+  const feedForUser = useSelector((store) => store.feed) || [];
 
-  // Fetch Logic
+  // 1. States for Infinite Scroll (Page-based for Weighted Algorithm)
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
+
+  // 2. Intersection Observer Logic
+  const observer = useRef();
+  const lastPostElementRef = useCallback(
+    (node) => {
+      // If we are currently loading, do not trigger again
+      if (isLoading || isFetchingMore) return;
+      
+      // Disconnect the previous observer so we only watch the new "last" element
+      if (observer.current) observer.current.disconnect();
+
+      observer.current = new IntersectionObserver((entries) => {
+        // When the user scrolls to the bottom element, fetch the next page
+        if (entries[0].isIntersecting && hasMore) {
+          fetchMoreFeed();
+        }
+      });
+
+      if (node) observer.current.observe(node);
+    },
+    [isLoading, isFetchingMore, hasMore]
+  );
+
+  // 3. Load Logic (Runs once on mount or when creating a post)
   const getFeed = async () => {
     try {
-      const res = await api.get(`/feed`);
+      setIsLoading(true);
+      setPage(1); // Reset page to 1
+      setHasMore(true); // Reset hasMore
+
+      const res = await api.get(`/feed?page=1`);
       api.patch("/status/update/online", {});
-          
-      dispatch(addFeed(res?.data));
+      
+      // Handle response whether backend sends { feed: [...] } or just an array [...]
+      const posts = res?.data?.feed || res?.data || [];
+      dispatch(addFeed(posts));
+      
+      if (posts.length === 0) setHasMore(false);
     } catch (error) {
       console.error(error);
     } finally {
@@ -40,8 +74,34 @@ const Feed = () => {
     }
   };
 
+  // SENIOR NOTE: 4. Pagination Fetch Logic (Triggered by Observer)
+  const fetchMoreFeed = async () => {
+    if (!hasMore || isFetchingMore) return;
+
+    try {
+      setIsFetchingMore(true);
+      const nextPage = page + 1;
+      
+      const res = await api.get(`/feed?page=${nextPage}`);
+      const newPosts = res?.data?.feed || res?.data || [];
+
+      if (newPosts.length === 0) {
+        setHasMore(false); // Stop trying to fetch, out of posts
+      } else {
+        // Append new posts to existing Redux state
+        dispatch(addFeed([...feedForUser, ...newPosts]));
+        setPage(nextPage); // Update local page state
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsFetchingMore(false);
+    }
+  };
+
   useEffect(() => {
     getFeed();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // --- LOADING STATE ---
@@ -147,29 +207,33 @@ const Feed = () => {
               <CreatePostWidget onPostCreated={getFeed} />
             </div>
           )}
+          
           <div className="space-y-12">
             <div>
-              {feedForUser?.length < 50 ? (
-                <>
-                  {feedForUser?.map((feed) => (
-                    <FeedCard
-                      key={feed._id}
-                      feed={feed}
-                      isLoggedInUser={feed?.userId._id === user?._id || false}
-                    />
-                  ))}
-                  {moreFeed?.map((feed) => (
-                    <FeedCard
-                      key={feed._id}
-                      feed={feed}
-                      isLoggedInUser={feed?.userId._id === user?._id}
-                    />
-                  ))}
-                </>
-              ) : (
-                feedForUser?.map((feed) => (
-                  <FeedCard feed={feed} key={feed._id} />
-                ))
+              {/* 5. Attach the observer ref ONLY to the very last post */}
+              {feedForUser?.map((feed, index) => {
+                if (feedForUser.length === index + 1) {
+                  return (
+                    <div ref={lastPostElementRef} key={feed._id}>
+                      <FeedCard feed={feed} />
+                    </div>
+                  );
+                } else {
+                  return <FeedCard feed={feed} key={feed._id} />;
+                }
+              })}
+
+              {/* 6. Show spinner when fetching more pages */}
+              {isFetchingMore && (
+                <div className="flex justify-center py-6">
+                  <div className="w-6 h-6 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              )}
+              
+              {!hasMore && feedForUser.length > 0 && (
+                <div className="text-center text-zinc-500 py-8 pb-12 font-medium">
+                  You're all caught up!
+                </div>
               )}
             </div>
           </div>

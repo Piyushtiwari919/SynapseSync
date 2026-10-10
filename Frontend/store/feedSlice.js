@@ -2,25 +2,20 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const feedSlice = createSlice({
   name: "feed",
-  initialState: {
-    userPrefrencePosts: null,
-    extraPosts: null,
-  },
+  initialState: null,
   reducers: {
     addFeed: (state, action) => {
-      const { userPrefrencePosts, extraPosts } = action.payload;
-      state.userPrefrencePosts = userPrefrencePosts;
-      state.extraPosts = extraPosts;
+      const { feed } = action.payload;
+      return feed;
     },
     removeFeed: (state, action) => {
-      state.userPrefrencePosts = null;
-      state.extraPosts = null;
+      return null;
     },
     removeDeletedPost: (state, action) => {
-      const newState = state.userPrefrencePosts.filter((post) => {
+      const newState = state.filter((post) => {
         return post._id !== action.payload;
       });
-      state.userPrefrencePosts = newState;
+      return newState;
     },
   },
 });

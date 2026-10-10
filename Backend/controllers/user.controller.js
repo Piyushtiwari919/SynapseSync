@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import ConnectionRequest from "../models/connectionRequest.model.js";
 import Post from "../models/post.model.js";
 
@@ -105,72 +106,100 @@ const getFeed = async (req, res) => {
   try {
     const loggedInUser = req.user;
 
-    const page = parseInt(req.query.page) || 1;
-    let limit = parseInt(req.query.limit) || 10;
-    limit = limit > 50 ? 50 : limit;
-    const skip = (page - 1) * limit;
+    // --- FIX 1: Pagination Math ---
+    // We calculate exactly how many documents to skip based on the page number.
+    let page = parseInt(req.query.page) || 1;
+    let limit = parseInt(req.query.limit) || 10; // Default to 10 to match the frontend
+    let skip = (page - 1) * limit;
 
-    //All connection Requests except ignored ones
-    const connectionRequest = await ConnectionRequest.find({
+    const connectionRequests = await ConnectionRequest.find({
       $or: [{ fromUserId: loggedInUser._id }, { toUserId: loggedInUser._id }],
-      status: { $ne: "ignored" },
-    }).populate("fromUserId toUserId");
+      status: "accepted",
+    }).select("fromUserId toUserId");
 
-    const connectedUsersIds = new Set();
-
-    connectionRequest.forEach((connection) => {
-      const othersIds =
-        connection.fromUserId.toString() === loggedInUser._id.toString()
-          ? connection.toUserId
-          : connection.fromUserId;
-      connectedUsersIds.add(othersIds._id.toString());
+    const connectedUsersIdsSet = new Set();
+    connectionRequests.forEach((connection) => {
+      const othersId = connection.fromUserId.equals(loggedInUser._id)
+        ? connection.toUserId
+        : connection.fromUserId;
+      connectedUsersIdsSet.add(othersId.toString());
     });
 
-    const allPosts = await Post.find({
-      $and: [{ userId: { $in: Array.from(connectedUsersIds) } }],
-    })
-      .sort({ createdAt: -1 }) //Sorted by new posts first
-      .skip(skip)
-      .limit(limit)
-      .populate("userId", "firstName lastName profileImageUrl")
-      .populate({
-        path: "comments",
-        populate: {
-          path: "authorId",
-          select: "firstName profileImageUrl _id isVerified",
-        },
-      })
-      .lean();
+    // --- FIX 2: ObjectId Conversion ---
+    // MongoDB Aggregation strictly requires ObjectIds. It will not match strings!
+    const connectedUsersIds = Array.from(connectedUsersIdsSet).map(
+      (id) => new mongoose.Types.ObjectId(id),
+    );
 
-    let morePosts = [];
+    const userInterestedTags = loggedInUser.skills || [];
 
-    if (allPosts.length < limit) {
-      const existingPostIds = allPosts.map((post) => post._id);
-      morePosts = await Post.find({
-        $and: [
-          { _id: { $nin: existingPostIds } },
-          { userId: { $ne: loggedInUser._id } },
-          { userId: { $nin: Array.from(connectedUsersIds) } },
-        ],
-      })
-        .skip(skip)
-        .limit(limit - allPosts.length)
-        .populate("userId", "firstName lastName profileImageUrl")
-        .populate({
-          path: "comments",
-          populate: {
-            path: "authorId",
-            select: "firstName lastName profileImageUrl _id isVerified",
+    // --- FIX 3: Define oneDayAgo ---
+    // We must define this variable before using it in the pipeline
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+    const pipeline = [
+      {
+        $addFields: {
+          connectionScore: {
+            $cond: [{ $in: ["$userId", connectedUsersIds] }, 50, 0],
           },
-        })
-        .lean();
-    }
+          tagScore: {
+            $cond: [
+              {
+                $gt: [
+                  {
+                    $size: { $setIntersection: ["$tags", userInterestedTags] },
+                  },
+                  0,
+                ],
+              },
+              30,
+              0,
+            ],
+          },
+          recencyScore: {
+            $cond: [{ $gte: ["$createdAt", oneDayAgo] }, 20, 0],
+          },
+        },
+      },
+      {
+        $addFields: {
+          totalScore: {
+            $add: ["$connectionScore", "$tagScore", "$recencyScore"],
+          },
+        },
+      },
+      {
+        $sort: { totalScore: -1, _id: -1 },
+      },
+      // --- FIX 4: Apply Skip and Limit ---
+      // The order here is CRITICAL. Sort first, then skip, then limit.
+      {
+        $skip: skip,
+      },
+      {
+        $limit: limit,
+      },
+    ];
 
-    return res
-      .status(200)
-      .json({ userPrefrencePosts: allPosts, extraPosts: morePosts });
+    const feed = await Post.aggregate(pipeline);
+
+    // --- FIX 5: Full Population ---
+    // Added comment population back in so your UI doesn't break when rendering comments
+    const populatedFeed = await Post.populate(feed, [
+      { path: "userId", select: "firstName lastName profileImageUrl" },
+      {
+        path: "comments.authorId",
+        select: "firstName lastName profileImageUrl _id isVerified",
+      },
+    ]);
+
+    return res.status(200).json({ feed: populatedFeed });
   } catch (error) {
-    return res.status(400).send(`ERROR: ${error.message}`);
+    console.error("Feed Error:", error);
+    return res
+      .status(500)
+      .json({ message: "Failed to fetch feed", error: error.message });
   }
 };
 
